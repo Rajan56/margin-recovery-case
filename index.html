@@ -136,6 +136,9 @@ pre { margin: 0; background: var(--code-bg); border-radius: 0 0 10px 10px; paddi
 .checks li { padding: 4px 0 4px 26px; position: relative; }
 .checks li::before { content: "✓"; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--good); color: #fff; font-size: 11px; display: grid; place-items: center; font-weight: 700; }
 
+.video-card { margin: 24px 0 8px; padding: 14px; }
+.video-card video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #0d141c; }
+.video-card .cap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin: 10px 4px 0; font-size: 14px; color: var(--ink-2); }
 .pbi-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
 .pbi-grid a { text-decoration: none; color: var(--ink-2); font-size: 12.5px; }
 .pbi-grid img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--border); border-radius: 8px; display: block; margin-bottom: 4px; background: var(--surface-2); }
@@ -221,6 +224,15 @@ footer .card { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
     <span class="badge note">Fictional company: Northfold Packaging, a Nordic corrugated packaging business unit</span>
     <span class="badge note">Synthetic data</span>
     <span class="badge">Python</span><span class="badge">SQL</span><span class="badge">Power BI / DAX</span><span class="badge">AI agent</span>
+  </div>
+
+  <div class="card video-card">
+    <div class="kicker" style="margin:2px 4px 10px">Watch first: the thinking process in 80 seconds</div>
+    <video controls muted playsinline preload="metadata" poster="docs/img/video_poster.jpg">
+      <source src="docs/margin_recovery_case_80s.mp4" type="video/mp4">
+      <a href="docs/margin_recovery_case_80s.mp4">Download the video (MP4, 5 MB)</a>
+    </video>
+    <div class="cap"><span>Seven steps, from the problem to a costed plan. Captions on screen, no sound needed.</span><span class="tiny">Fictional company, synthetic data</span></div>
   </div>
 
   <div class="card answer">

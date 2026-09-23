@@ -2,6 +2,10 @@
 
 **Live page:** https://rajan56.github.io/margin-recovery-case/
 
+**80-second walkthrough:** click the image to play the video (captions on screen, no sound needed).
+
+[![Watch the 80-second walkthrough](docs/img/video_thumb.jpg)](https://rajan56.github.io/margin-recovery-case/docs/margin_recovery_case_80s.mp4)
+
 This repository is a worked business performance case. It takes a margin problem from raw data to a decision:
 
 - one integrated dataset
@@ -54,7 +58,8 @@ powerbi/
   BUILD_GUIDE.md             step-by-step Power BI build, with expected values to check against
   outputs/                   flat outputs for Power BI pages
 site/                 page template and JavaScript (no external libraries)
-docs/                 AI agent draft output, screenshots
+docs/                 walkthrough video, AI agent draft output, screenshots
+video/                source of the 80-second walkthrough (SVG animation drawn from case_results.json)
 index.html            the published page (GitHub Pages)
 ```
 
@@ -92,6 +97,18 @@ The drivers reconcile to the reported change within €0.03.
 **Energy alert.** Each week is compared with the plant's own FY2024 seasonal baseline (smoothed over five weeks). An alert fires when the four-week deviation stays above +6% for three weeks in a row.
 
 **AI agent.** The LLM only receives verified facts. Every number in its draft is traced back to those facts before a controller sees it, and nothing is published without human sign-off.
+
+## Walkthrough video
+
+`docs/margin_recovery_case_80s.mp4` (1920x1080, 30 fps, 80 s) is generated from code, not edited by hand. `video/animation_src.html` draws every frame as SVG from a single time value, using the same `case_results.json` as the page. `video/render.js` steps through the frames with Playwright and encodes them with ffmpeg.
+
+```bash
+cd video
+python build.py                                     # embeds the case data into animation.html
+node render.js margin_recovery_case_80s.mp4         # needs Node, Playwright and ffmpeg
+```
+
+Open `video/animation.html` in a browser to watch the animation loop live.
 
 ## Power BI report
 
