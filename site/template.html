@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Margin Recovery Case</title>
+<meta name="description" content="Sales grew, EBITDA fell. A worked business performance case on a fictional Nordic packaging business unit: EBITDA bridge, cost-to-serve, energy anomaly detection, scenario simulator and an AI agent for variance commentary.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f3f2ee;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #6f6d68;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --accent: #2a78d6;
+  --accent-ink: #1c5cab;
+  --pos: #2a78d6;
+  --neg: #e34948;
+  --total: #6f6d68;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --wash: rgba(227,73,72,0.10);
+  --good: #0ca30c;
+  --good-ink: #006300;
+  --warn-ink: #8a5a00;
+  --code-bg: #f3f2ee;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7;
+    --muted: #9a988f; --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --accent: #3987e5; --accent-ink: #86b6ef; --pos: #3987e5; --neg: #e66767; --total: #9a988f;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --wash: rgba(230,103,103,0.14);
+    --good: #0ca30c; --good-ink: #0ca30c; --warn-ink: #fab219; --code-bg: #232321;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7;
+  --muted: #9a988f; --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --accent: #3987e5; --accent-ink: #86b6ef; --pos: #3987e5; --neg: #e66767; --total: #9a988f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --wash: rgba(230,103,103,0.14);
+  --good: #0ca30c; --good-ink: #0ca30c; --warn-ink: #fab219; --code-bg: #232321;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent-ink); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.hero { padding: 48px 16px 24px; }
+.eyebrow { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.15; margin: 8px 0 12px; letter-spacing: -0.01em; }
+h2 { font-size: clamp(22px, 3vw, 28px); line-height: 1.25; margin: 4px 0 8px; }
+h3 { font-size: 17px; margin: 0 0 8px; }
+.lede { font-size: 18px; color: var(--ink-2); max-width: 760px; margin: 0; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+.badge { font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); }
+.badge.note { border-color: transparent; background: var(--surface-2); }
+
+nav.steps { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--page) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+nav.steps .wrap { display: flex; gap: 4px; overflow-x: auto; padding-top: 8px; padding-bottom: 8px; scrollbar-width: none; }
+nav.steps a { flex: none; text-decoration: none; color: var(--ink-2); font-size: 14px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+nav.steps a:hover, nav.steps a.on { background: var(--surface-2); color: var(--ink); }
+nav.steps a b { color: var(--muted); font-weight: 600; margin-right: 4px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+.answer { margin: 24px 0 8px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+.tile { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+.tile .lab { font-size: 13px; color: var(--ink-2); }
+.tile .val { font-size: 26px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tiles-sm .tile .val { font-size: 21px; }
+.tile .dlt { font-size: 13px; margin-top: 2px; color: var(--ink-2); }
+.dlt.bad::before { content: "▼ "; color: var(--neg); font-size: 11px; }
+.dlt.goodd::before { content: "▲ "; color: var(--good); font-size: 11px; }
+.answer ol { margin: 0; padding-left: 20px; }
+.answer li { margin: 6px 0; }
+
+section.step { padding: 48px 0 8px; }
+.stephead { display: flex; gap: 14px; align-items: baseline; margin-bottom: 14px; }
+.num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--page); display: grid; place-items: center; font-weight: 700; font-size: 15px; transform: translateY(-4px); }
+.sub { color: var(--ink-2); margin: 0; max-width: 760px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+.grid2e { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.stack > * + * { margin-top: 16px; }
+.finding { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 0 0 12px; }
+.finding b { display: block; }
+.kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 650; margin-bottom: 6px; }
+p { margin: 0 0 10px; }
+.small { font-size: 14px; color: var(--ink-2); }
+.tiny { font-size: 12.5px; color: var(--muted); }
+
+/* KPI tree */
+.tree { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.node { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.node .t { font-weight: 650; }
+.node .v { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.node.root { background: var(--ink); color: var(--page); }
+.node.root .v { color: var(--page); opacity: .8; }
+.branches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.node .chg { font-size: 12.5px; margin-top: 2px; }
+.chg.up { color: var(--good-ink); } .chg.down { color: var(--neg); }
+.hyp { list-style: none; padding: 0; margin: 0; }
+.hyp li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; padding: 10px 0; border-top: 1px solid var(--grid); font-size: 15px; }
+.hyp li:first-child { border-top: 0; padding-top: 0; }
+.hyp .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; }
+.ic.part { background: #c98500; } .ic.no { background: #d03b3b; } .ic.yes { background: #0ca30c; }
+
+/* data flow */
+.flow { display: grid; grid-template-columns: 1fr 36px 1.1fr 36px 1fr; align-items: center; gap: 0; }
+.col { display: grid; gap: 8px; }
+.box { border: 1px solid var(--border); background: var(--surface-2); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; }
+.box b { display: block; font-size: 13.5px; }
+.box span { color: var(--ink-2); font-size: 12.5px; }
+.arrow { text-align: center; color: var(--muted); font-size: 20px; }
+.star { border: 1.5px solid var(--accent); background: var(--surface); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 0; flex-wrap: wrap; }
+.tabs button { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 14px; padding: 8px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+pre { margin: 0; background: var(--code-bg); border-radius: 0 0 10px 10px; padding: 14px; overflow-x: auto; font: 12.5px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); max-height: 360px; }
+.checks { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+.checks li { padding: 4px 0 4px 26px; position: relative; }
+.checks li::before { content: "✓"; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--good); color: #fff; font-size: 11px; display: grid; place-items: center; font-weight: 700; }
+
+.pbi-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.pbi-grid a { text-decoration: none; color: var(--ink-2); font-size: 12.5px; }
+.pbi-grid img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--border); border-radius: 8px; display: block; margin-bottom: 4px; background: var(--surface-2); }
+@media (max-width: 860px) { .pbi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* charts */
+.chart { width: 100%; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 12px; font-family: inherit; }
+.chart .lbl { fill: var(--ink-2); font-size: 12px; }
+.chart .val { fill: var(--ink); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin: 4px 0 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend i.line { height: 2px; border-radius: 1px; vertical-align: 3px; width: 14px; }
+#tip { position: fixed; pointer-events: none; z-index: 50; background: var(--ink); color: var(--page); font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 8px; max-width: 260px; opacity: 0; transition: opacity .12s; }
+#tip b { font-weight: 650; }
+.hit { cursor: pointer; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.t th { text-align: left; font-weight: 600; color: var(--ink-2); font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--axis); }
+table.t td { padding: 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scroll-x { overflow-x: auto; }
+#tierTable td:first-child { white-space: nowrap; }
+.pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+
+/* simulator */
+.sim { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.presets button, .seg button { font: inherit; font-size: 13.5px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); cursor: pointer; }
+.presets button.on, .seg button.on { background: var(--ink); color: var(--page); border-color: var(--ink); }
+.ctrl { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; margin: 10px 0 12px; }
+.ctrl label { font-size: 14px; color: var(--ink-2); }
+.ctrl output { font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+.ctrl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
+.toggles { display: grid; gap: 6px; margin-top: 6px; }
+.toggles label { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: center; font-size: 14px; padding: 6px 8px; border-radius: 8px; background: var(--surface-2); cursor: pointer; }
+.toggles input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.toggles .n { font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: 13px; }
+.hero-num { font-size: 52px; font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; }
+.hero-sub { color: var(--ink-2); font-size: 15px; }
+.seg { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+
+/* agent */
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 12px 0 16px; }
+.pipe div { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; }
+.pipe b { display: block; font-size: 14px; margin-bottom: 2px; }
+.draft { background: var(--surface-2); border-radius: 10px; padding: 14px 16px; font-size: 14.5px; }
+.draft ul { margin: 4px 0 8px; padding-left: 18px; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--good-ink); }
+.status::before { content: "✓"; width: 16px; height: 16px; border-radius: 50%; background: var(--good); color: #fff; font-size: 10px; display: grid; place-items: center; }
+
+.map-role td:first-child { width: 48%; }
+footer { padding: 56px 0 64px; color: var(--ink-2); font-size: 14px; }
+footer .card { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.theme-btn { position: fixed; right: 14px; bottom: 14px; z-index: 30; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 999px; width: 40px; height: 40px; cursor: pointer; font-size: 17px; box-shadow: var(--shadow); }
+
+@media (max-width: 860px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid2, .grid2e, .sim, footer .card { grid-template-columns: minmax(0, 1fr); }
+  .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tree { grid-template-columns: minmax(0, 1fr); }
+  .branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .arrow { transform: rotate(90deg); height: 28px; line-height: 28px; }
+}
+@media (max-width: 480px) {
+  .tile .val { font-size: 22px; }
+  .hero-num { font-size: 42px; }
+  .card { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+
+<header class="hero wrap">
+  <div class="eyebrow">Business performance case study</div>
+  <h1>Sales grew. EBITDA fell by a quarter.<br>Why, and what should we do?</h1>
+  <p class="lede">A worked example of how a business performance analyst takes a margin problem from raw data to a decision: one integrated dataset, a driver-based EBITDA bridge, customer and plant drill-downs, a live scenario model, and AI where it adds measurable value.</p>
+  <div class="badges">
+    <span class="badge note">Fictional company: Northfold Packaging, a Nordic corrugated packaging business unit</span>
+    <span class="badge note">Synthetic data</span>
+    <span class="badge">Python</span><span class="badge">SQL</span><span class="badge">Power BI / DAX</span><span class="badge">AI agent</span>
+  </div>
+
+  <div class="card answer">
+    <div class="kicker">The answer in 30 seconds</div>
+    <div class="tiles">
+      <div class="tile"><div class="lab">Net sales FY2025</div><div class="val" data-k="sales25"></div><div class="dlt goodd" data-k="salesGrowthTxt"></div></div>
+      <div class="tile"><div class="lab">EBITDA FY2025</div><div class="val" data-k="ebitda25"></div><div class="dlt bad" data-k="ebitdaChgTxt"></div></div>
+      <div class="tile"><div class="lab">EBITDA margin</div><div class="val" data-k="margin25"></div><div class="dlt bad" data-k="marginChgTxt"></div></div>
+      <div class="tile"><div class="lab">Recovery identified</div><div class="val" data-k="initTotal"></div><div class="dlt goodd" data-k="initPpTxt"></div></div>
+    </div>
+    <ol>
+      <li><b>Most of the drop came from the market</b>: fibre, energy and a weaker SEK together cost <span data-k="marketEffect"></span>. Volume growth added <span data-k="volEffect"></span> but could not offset them.</li>
+      <li><b>The controllable leak sits in contracts and customers.</b> Fixed annual contracts gave away <span data-k="fixedEffect"></span> of price while indexed contracts rose, and <span data-k="negCount"></span> accounts, <span data-k="negSmall"></span> of them small, are EBITDA-negative once cost-to-serve and their share of fixed costs are counted.</li>
+      <li><b>One plant is quietly burning energy.</b> A weekly rule flags the drift at Sweden Central six weeks after it starts; monthly reports blend it into the average for weeks.</li>
+      <li><b>Five initiatives are worth about <span data-k="initTotal"></span> a year</b>, and each comes with a KPI, an owner and a way to prove it delivered.</li>
+    </ol>
+  </div>
+</header>
+
+<nav class="steps" aria-label="Case steps">
+  <div class="wrap">
+    <a href="#s1"><b>1</b>Frame</a><a href="#s2"><b>2</b>Integrate</a><a href="#s3"><b>3</b>Bridge</a>
+    <a href="#s4"><b>4</b>Customers</a><a href="#s5"><b>5</b>Energy</a><a href="#s6"><b>6</b>Simulate</a>
+    <a href="#s7"><b>7</b>AI and automation</a><a href="#s8"><b>8</b>Track value</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- STEP 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><div class="num">1</div><div><h2>Frame the problem before touching the data</h2>
+  <p class="sub">A margin problem breaks down into a small number of drivers. The KPI tree sets what to measure; the hypotheses set what to test.</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="kicker">KPI tree, per tonne sold, FY2024 → FY2025</div>
+      <div class="tree" id="kpiTree"></div>
+    </div>
+    <div class="card">
+      <div class="kicker">Hypotheses tested</div>
+      <ul class="hyp">
+        <li><span class="ic part" aria-label="Partly true">~</span><span><b>"Prices fell because the market fell."</b><br><span class="small">Partly true. Indexed contracts actually rose; the erosion is concentrated in fixed annual contracts.</span></span></li>
+        <li><span class="ic yes" aria-label="True">✓</span><span><b>"Costs rose because of fibre, energy and FX."</b><br><span class="small">Mostly true, with one exception: an energy drift at one plant is internal and fixable.</span></span></li>
+        <li><span class="ic no" aria-label="False">✕</span><span><b>"Volume growth is good growth."</b><br><span class="small">Not entirely. Part of the growth came from small accounts whose cost-to-serve exceeds their margin.</span></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="s2">
+  <div class="stephead"><div class="num">2</div><div><h2>Build one source of truth</h2>
+  <p class="sub">Five systems, one star schema. The core figures are computed twice, once in SQL and once in Python, and the two must agree before anything is reported.</p></div></div>
+  <div class="card stack">
+    <div class="flow">
+      <div class="col">
+        <div class="box"><b>ERP sales ledger</b><span>invoices, tonnes, orders</span></div>
+        <div class="box"><b>ERP cost ledger</b><span>fibre, fixed, other variable</span></div>
+        <div class="box"><b>Energy meters</b><span>weekly MWh per plant</span></div>
+        <div class="box"><b>CRM and master data</b><span>customers, contracts, segments</span></div>
+        <div class="box"><b>Treasury</b><span>SEK / EUR rates</span></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="col">
+        <div class="box star"><b>Star schema</b><span>3 fact tables: sales (customer × month), plant cost (plant × month), energy (plant × week)</span></div>
+        <div class="box star"><b>4 dimensions</b><span>customer, segment, plant, date, plus FX</span></div>
+        <div class="box"><b>Quality gates</b><span>keys, reconciliation, SQL = Python</span></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="col">
+        <div class="box"><b>EBITDA bridge</b><span>step 3</span></div>
+        <div class="box"><b>Customer profitability</b><span>step 4</span></div>
+        <div class="box"><b>Energy alerting</b><span>step 5</span></div>
+        <div class="box"><b>Scenario model</b><span>step 6</span></div>
+        <div class="box"><b>AI commentary agent</b><span>step 7</span></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="tabs" role="tablist" id="codeTabs">
+          <button role="tab" aria-selected="true" data-tab="sql">SQL</button>
+          <button role="tab" aria-selected="false" data-tab="py">Python</button>
+          <button role="tab" aria-selected="false" data-tab="dax">DAX</button>
+        </div>
+        <pre id="code-sql">-- Customer-level EBITDA bridge (excerpt of sql/03_ebitda_bridge.sql)
+cy AS (   -- FY2024 and FY2025 side by side, constant currency
+  SELECT a.customer_id,
+         a.vol AS v24, b.vol AS v25,
+         a.sales_cc / a.vol AS p24,  b.sales_cc / b.vol AS p25,
+         a.fibre / a.vol    AS fib24, b.fibre / b.vol    AS fib25,
+         (a.sales_cc - a.fibre - a.energy_cc - a.other_var - a.cts_cc)
+           / a.vol AS ucm24                 -- unit contribution FY2024
+  FROM cust_year a
+  JOIN cust_year b ON b.customer_id = a.customer_id
+                  AND a.year = 2024 AND b.year = 2025
+)
+SELECT 'Volume', (tot.v25 - tot.v24) * tot.ucm24_avg FROM tot
+UNION ALL SELECT 'Mix',   SUM(v25 * ucm24) - tot.v25 * tot.ucm24_avg ...
+UNION ALL SELECT 'Price', SUM(v25 * (p25 - p24)) FROM cy
+UNION ALL SELECT 'Fibre cost', -SUM(v25 * (fib25 - fib24)) FROM cy
+...</pre>
+        <pre id="code-py" hidden># Weekly energy anomaly rule (excerpt of python/02_analysis.py)
+e["intensity"] = e.energy_mwh / e.production_t
+base = (e[e.yr == 2024].groupby(["plant_id", "woy"]).intensity.mean()
+        .groupby(level=0)
+        .transform(lambda s: s.rolling(5, center=True, min_periods=1).mean()))
+e = e.merge(base.rename("baseline").reset_index(), on=["plant_id", "woy"])
+e["dev"] = e.intensity / e.baseline - 1
+e["dev_4w"] = e.groupby("plant_id").dev.transform(
+    lambda s: s.rolling(4, min_periods=4).mean())
+
+# Alert: 4-week deviation above +6% for three weeks in a row
+e["breach"] = e.dev_4w > 0.06
+e["run"] = e.groupby("plant_id").breach.transform(
+    lambda s: s.groupby((~s).cumsum()).cumcount())
+alerts = e[(e.run >= 3) & (e.yr == 2025)].groupby("plant_id").week_start.min()</pre>
+        <pre id="code-dax" hidden>-- Power BI measures (excerpt of powerbi/measures.dax)
+EBITDA =
+    [Net Sales] - [Fibre Cost] - [Energy Cost] - [Other Variable Cost]
+  - [Cost to Serve] - [Fixed Cost]
+
+EBITDA Margin % = DIVIDE ( [EBITDA], [Net Sales] )
+
+Cost to Serve per t = DIVIDE ( [Cost to Serve], [Volume t] )
+
+Price Effect CC =        -- variables inside SUMX: evaluated per customer
+SUMX (
+    VALUES ( dim_customer[customer_id] ),
+    VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 )
+    VAR V24 = CALCULATE ( [Volume t], dim_date[year] = 2024 )
+    VAR P25 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2025 ), V25 )
+    VAR P24 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2024 ), V24 )
+    RETURN V25 * ( P25 - P24 )
+)</pre>
+      </div>
+      <div>
+        <div class="kicker">Quality gates passed</div>
+        <ul class="checks">
+          <li>Bridge reconciles to reported EBITDA within <span data-k="reconGap"></span></li>
+          <li>18 SQL vs Python checks agree (P&amp;L, all 9 bridge drivers, 80 customers, alert week)</li>
+          <li>Every sales row maps to a customer, segment, plant and month</li>
+          <li>FX handled explicitly: FY2025 restated at FY2024 monthly rates</li>
+          <li>Cost-to-serve allocated on real drivers: deliveries and orders</li>
+        </ul>
+        <p class="tiny" style="margin-top:12px">Full code, data and the Power BI report are in the repository linked at the bottom of the page.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="step" id="pbi" style="padding-top:24px">
+  <div class="card">
+    <div class="kicker">Power BI report built on the same model</div>
+    <p class="small">Five pages in Power BI Desktop, with DAX measures checked against the SQL and Python results (EBITDA, price, fibre, cost-to-serve and fixed-cost effects all match). The .pbix file is in the repository.</p>
+    <div class="pbi-grid">
+      <a href="docs/img/pbi_1_executive_summary.png"><img src="docs/img/pbi_1_executive_summary.png" alt="Power BI page 1: executive summary" loading="lazy"><span>1 Executive summary</span></a>
+      <a href="docs/img/pbi_2_ebitda_bridge.png"><img src="docs/img/pbi_2_ebitda_bridge.png" alt="Power BI page 2: EBITDA bridge" loading="lazy"><span>2 EBITDA bridge</span></a>
+      <a href="docs/img/pbi_3_customer_profitability.png"><img src="docs/img/pbi_3_customer_profitability.png" alt="Power BI page 3: customer profitability" loading="lazy"><span>3 Customer profitability</span></a>
+      <a href="docs/img/pbi_4_energy.png"><img src="docs/img/pbi_4_energy.png" alt="Power BI page 4: energy intensity" loading="lazy"><span>4 Energy</span></a>
+      <a href="docs/img/pbi_5_initiatives.png"><img src="docs/img/pbi_5_initiatives.png" alt="Power BI page 5: initiatives" loading="lazy"><span>5 Initiatives</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="s3">
+  <div class="stephead"><div class="num">3</div><div><h2>Explain the change: the EBITDA bridge</h2>
+  <p class="sub">Every euro of the change is assigned to one driver, and the drivers add up exactly to the reported result. Hover over any bar for detail.</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="kicker">EBITDA FY2024 → FY2025, EUR m</div>
+      <div class="legend"><span><i style="background:var(--pos)"></i>Increase</span><span><i style="background:var(--neg)"></i>Decrease</span><span><i style="background:var(--total)"></i>Total</span></div>
+      <div class="chart" id="waterfall"></div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="kicker">What the bridge says</div>
+        <p class="finding"><b>Market drivers explain most of it.</b> Fibre, energy and FX account for <span data-k="marketEffect"></span> of the <span data-k="ebitdaChgAbs"></span> decline.</p>
+        <p class="finding"><b>But price is not only a market story.</b> Splitting the price effect by contract type shows where the negotiation was lost.</p>
+        <div class="chart" id="priceSplit"></div>
+        <p class="tiny">Price change per tonne FY2025 vs FY2024, constant currency. Bar length shows the EBITDA effect.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="s4">
+  <div class="stephead"><div class="num">4</div><div><h2>Drill down: which customers make money?</h2>
+  <p class="sub">Average margins hide the tail. Once freight and order handling are charged to the customers who cause them, the picture changes.</p></div></div>
+  <div class="grid2e">
+    <div class="card">
+      <div class="kicker">Whale curve: cumulative EBITDA, customers ranked best to worst</div>
+      <div class="chart" id="whale"></div>
+      <p class="small">The top customers generate <span data-k="whalePeak"></span> of total EBITDA. The tail of <span data-k="negCount"></span> accounts then gives back <span data-k="negValueAbs"></span>.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">Order size vs EBITDA margin, per customer</div>
+      <div class="legend" id="tierLegend"></div>
+      <div class="chart" id="scatter"></div>
+      <p class="small"><span data-k="smallOrderNeg"></span> accounts ordering under 6 tonnes at a time are EBITDA-negative: more changeovers and part-load deliveries per tonne.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="kicker">Profitability by customer tier, FY2025</div>
+    <div class="scroll-x"><table class="t" id="tierTable"></table></div>
+  </div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" id="s5">
+  <div class="stephead"><div class="num">5</div><div><h2>Catch what monthly reporting misses</h2>
+  <p class="sub">Energy intensity is compared each week with the plant's own seasonal baseline. Select a plant: four behave normally, one does not.</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="seg" id="plantSeg" role="group" aria-label="Plant"></div>
+      <div class="legend" style="margin-top:12px"><span><i class="line" style="background:var(--accent)"></i>Actual MWh per tonne</span><span><i class="line" style="background:var(--muted)"></i>Seasonal baseline (FY2024)</span><span><i style="background:var(--wash);border:1px solid var(--neg)"></i>Excess</span></div>
+      <div class="chart" id="energy"></div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="kicker">Sweden Central</div>
+        <div class="tiles tiles-sm" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+          <div class="tile"><div class="lab">Excess energy 2025</div><div class="val" data-k="excessMwh"></div></div>
+          <div class="tile"><div class="lab">Excess cost 2025</div><div class="val" data-k="excessCost"></div></div>
+          <div class="tile"><div class="lab">Run-rate if unfixed</div><div class="val" data-k="excessAnnual"></div></div>
+          <div class="tile"><div class="lab">Extra CO₂</div><div class="val" data-k="excessCo2"></div></div>
+        </div>
+        <p class="finding"><b>Weekly rule: alert in the week of <span data-k="alertWeek"></span>.</b> Six weeks after the drift began.</p>
+        <p class="finding"><b>Monthly report: April showed only <span data-k="aprYoy"></span> vs last year.</b> Easy to explain away as weather or mix, so no action.</p>
+        <p class="tiny">Typical root causes: failing steam traps, compressed-air leaks, a boiler control fault. The analyst's job is to flag it early and size it; maintenance finds the cause.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 6 -->
+<section class="step" id="s6">
+  <div class="stephead"><div class="num">6</div><div><h2>Simulate FY2026 before committing</h2>
+  <p class="sub">A driver-based model built on FY2025 actuals. Move the market levers, switch initiatives on and off, and see what they are worth.</p></div></div>
+  <div class="card">
+    <div class="presets" id="presets">
+      <button data-p="base" class="on">Base case</button>
+      <button data-p="down">Market downside</button>
+      <button data-p="plan">Base + recovery plan</button>
+    </div>
+    <div class="sim">
+      <div>
+        <div class="kicker">Market levers</div>
+        <div id="levers"></div>
+        <div class="kicker" style="margin-top:14px">Initiatives (in-year share of full value)</div>
+        <div class="toggles" id="initToggles"></div>
+      </div>
+      <div class="stack">
+        <div>
+          <div class="kicker">FY2026 EBITDA</div>
+          <div class="hero-num" id="simEbitda"></div>
+          <div class="hero-sub" id="simSub"></div>
+        </div>
+        <div class="chart" id="simChart"></div>
+        <div>
+          <div class="kicker">Sensitivity at current settings, EUR m EBITDA</div>
+          <div class="chart" id="tornado"></div>
+        </div>
+      </div>
+    </div>
+    <p class="tiny" style="margin-top:12px">Base assumptions are illustrative: volume +1.5%, cost-to-serve rates +2%, fixed cost inflation +3%, prices, containerboard, energy and FX flat on FY2025. The same model is in python/04_scenario_model.py.</p>
+  </div>
+</section>
+
+<!-- STEP 7 -->
+<section class="step" id="s7">
+  <div class="stephead"><div class="num">7</div><div><h2>Put AI and automation where they pay back</h2>
+  <p class="sub">Not every idea is worth building. Each initiative is sized from the data, scored for effort, and given a confidence level before anyone writes code.</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="kicker">Value vs effort</div>
+      <div class="chart" id="oppMap"></div>
+      <p class="tiny">Value is full-year EBITDA impact, EUR m. Effort: 1 = weeks with existing data, 5 = new systems and a pilot.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">Where AI fits, and where it does not</div>
+      <p class="finding"><b>Rules first.</b> The energy alert is a simple statistical rule. It is cheap, explainable and caught the problem.</p>
+      <p class="finding"><b>Machine learning where patterns are complex.</b> Demand sensing for planning has real value but low confidence until a pilot proves it.</p>
+      <p class="finding"><b>Generative AI for language work, with controls.</b> Drafting variance commentary is repetitive; checking the numbers must stay automatic and the sign-off human.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="kicker">AI agent: month-end variance commentary</div>
+    <div class="pipe">
+      <div><b>1 · Facts</b>Pulls verified figures from the single source of truth only.</div>
+      <div><b>2 · Draft</b>An LLM writes the commentary under strict rules: no new numbers, market vs controllable.</div>
+      <div><b>3 · Check</b>Every number in the draft is traced back to the facts. Untraceable numbers are flagged.</div>
+      <div><b>4 · Review</b>A controller edits and signs off. The agent never publishes on its own.</div>
+    </div>
+    <div class="draft" id="draft"></div>
+    <p class="tiny" style="margin-top:10px">Output of python/05_ai_variance_commentary.py (rule-based mode shown; with an API key, the same facts, rules and number check apply to the LLM draft). Frees roughly 1,100 controller hours a year for analysis.</p>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="kicker">Initiative register</div>
+    <div class="scroll-x"><table class="t" id="initTable"></table></div>
+  </div>
+</section>
+
+<!-- STEP 8 -->
+<section class="step" id="s8">
+  <div class="stephead"><div class="num">8</div><div><h2>Prove the value was delivered</h2>
+  <p class="sub">An initiative is not done when it launches; it is done when the KPI moves and the EBITDA shows up. Each one gets a baseline, a target, an owner and a review rhythm.</p></div></div>
+  <div class="card">
+    <div class="scroll-x"><table class="t" id="trackTable"></table></div>
+    <p class="tiny" style="margin-top:10px">Leading indicators show within weeks whether an initiative is on track; lagging indicators confirm the financial result. Both are reviewed in the monthly business review.</p>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="kicker">How this case maps to the business performance analyst role</div>
+    <div class="scroll-x"><table class="t map-role">
+      <tr><th>Typical responsibility</th><th>Where it shows up here</th></tr>
+      <tr><td>Analyse financial and business data to find trends, drivers, risks and opportunities</td><td>KPI tree, EBITDA bridge, contract split (steps 1 and 3)</td></tr>
+      <tr><td>Support controllers with profitability analysis and scenario modelling</td><td>Customer profitability after cost-to-serve, FY2026 simulator (steps 4 and 6)</td></tr>
+      <tr><td>Find where AI, automation and digital tools improve efficiency</td><td>Opportunity map, energy alert, commentary agent (steps 5 and 7)</td></tr>
+      <tr><td>Bridge business needs and technical solutions with measurable value</td><td>Every initiative sized, scored and tracked (steps 7 and 8)</td></tr>
+      <tr><td>Combine data from several systems into one reliable source of truth</td><td>Star schema, SQL and Python cross-checks (step 2)</td></tr>
+      <tr><td>Communicate findings clearly</td><td>The 30-second answer at the top, and this page</td></tr>
+    </table></div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <div class="card">
+    <div>
+      <div class="kicker">About the author</div>
+      <p><b>Rajan Kumar V K</b>, D.Sc. in Industrial Engineering and Management (LUT University). Research on performance management of digital transformation, digital twins and AI in industry; earlier hands-on experience as a production supervisor.</p>
+      <p class="small">This case was built to show a way of working: frame, integrate, explain, simulate, automate, and track.</p>
+    </div>
+    <div>
+      <div class="kicker">Links</div>
+      <p><a href="__REPO_URL__">Code, data and Power BI guide on GitHub</a><br>
+      <a href="__LINKEDIN_URL__">LinkedIn</a></p>
+      <p class="tiny">Northfold Packaging is fictional and all data is synthetic, generated by python/01_generate_data.py. Market conditions are modelled on publicly discussed trends in the Nordic packaging industry. No company's internal data is used or implied.</p>
+    </div>
+  </div>
+</footer>
+<button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+
+<script>
+const DATA = /*__DATA__*/;
+const DRAFT_MD = /*__DRAFT__*/;
+</script>
+<script>
+/*__APP__*/
+</script>
+</body>
+</html>
