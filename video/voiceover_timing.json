@@ -1,0 +1,114 @@
+[
+ {
+  "video_start": 0.4,
+  "voice_s": 8.32,
+  "segment_s": 8.62,
+  "stretch": 1.21,
+  "text": "Imagine your sales are growing, but your profit is quietly shrinking. Often, it only shows up months later, in the monthly report."
+ },
+ {
+  "video_start": 10.02,
+  "voice_s": 3.43,
+  "segment_s": 3.73,
+  "stretch": 1.44,
+  "text": "Here is how I would find out why, on a fictional company."
+ },
+ {
+  "video_start": 14.05,
+  "voice_s": 6.42,
+  "segment_s": 6.72,
+  "stretch": 1.43,
+  "text": "Sales grew two percent, yet EBITDA fell by seventeen point six million. Where did the margin go?"
+ },
+ {
+  "video_start": 21.18,
+  "voice_s": 5.38,
+  "segment_s": 5.68,
+  "stretch": 1.23,
+  "text": "First, I bring sales, cost, energy, logistics and currency data into one model."
+ },
+ {
+  "video_start": 27.05,
+  "voice_s": 3.58,
+  "segment_s": 4.9,
+  "stretch": 1.0,
+  "text": "Then I check the numbers three ways, before trusting any chart."
+ },
+ {
+  "video_start": 32.35,
+  "voice_s": 5.06,
+  "segment_s": 8.4,
+  "stretch": 1.0,
+  "text": "Next, a driver-based bridge, built customer by customer, in constant currency."
+ },
+ {
+  "video_start": 40.95,
+  "voice_s": 4.31,
+  "segment_s": 4.61,
+  "stretch": 1.18,
+  "text": "Fifteen million is the market: fibre, energy, and a weaker krona."
+ },
+ {
+  "video_start": 45.76,
+  "voice_s": 5.44,
+  "segment_s": 5.74,
+  "stretch": 1.44,
+  "text": "But price we can control. Fixed contracts lost nine million, while indexed ones gained."
+ },
+ {
+  "video_start": 51.8,
+  "voice_s": 4.97,
+  "segment_s": 5.5,
+  "stretch": 1.0,
+  "text": "Then I rank every customer by profit, after the real cost of serving them."
+ },
+ {
+  "video_start": 57.5,
+  "voice_s": 5.65,
+  "segment_s": 5.95,
+  "stretch": 1.01,
+  "text": "Twenty-nine accounts lose money. Small accounts cost seven times more to serve, per tonne."
+ },
+ {
+  "video_start": 63.85,
+  "voice_s": 5.23,
+  "segment_s": 5.53,
+  "stretch": 1.0,
+  "text": "For energy, each plant is compared, week by week, with its own seasonal baseline."
+ },
+ {
+  "video_start": 69.58,
+  "voice_s": 5.76,
+  "segment_s": 6.06,
+  "stretch": 1.24,
+  "text": "A weekly rule catches the drift in six weeks. The monthly report showed only four percent."
+ },
+ {
+  "video_start": 76.04,
+  "voice_s": 4.95,
+  "segment_s": 5.25,
+  "stretch": 1.17,
+  "text": "An AI agent drafts the monthly commentary, from verified facts only."
+ },
+ {
+  "video_start": 81.49,
+  "voice_s": 4.14,
+  "segment_s": 4.9,
+  "stretch": 1.0,
+  "text": "Every number is checked against the data, and a controller signs off."
+ },
+ {
+  "video_start": 86.79,
+  "voice_s": 5.93,
+  "segment_s": 6.7,
+  "stretch": 1.0,
+  "text": "Five initiatives, worth about eight million euros a year, each with a KPI and an owner."
+ },
+ {
+  "video_start": 93.99,
+  "voice_s": 4.69,
+  "segment_s": 4.99,
+  "stretch": 1.25,
+  "text": "The full case, with the code and Power B I, is at the link. Thanks for watching."
+ }
+]

@@ -403,7 +403,47 @@ function s7(t){
   return g;
 }
 
+// ---------- scene 0: opening hook (-8 to 0): sales creep up, profit slides down
+const HOOK=8;
+function s0(t){
+  let g='';
+  g+=T(80,70,'MARGIN RECOVERY CASE',{size:22,color:C.muted,weight:700,ls:3,op:P(t,-7.8,-7)});
+  g+=T(960,215,'Imagine your sales are growing…',{size:64,a:'middle',weight:700,op:EO(P(t,-7.7,-7.0))});
+  g+=T(960,295,'…but your profit is quietly shrinking.',{size:56,a:'middle',weight:700,color:C.red,op:EO(P(t,-5.4,-4.8))});
+  const sales=[100,100.6,101.1,101.0,101.6,101.9,102.1,102.3], prof=[100,98.5,95.8,92.1,88.4,83.9,78.6,73.2];
+  const x0=520,x1=1330,yt=380,yb=780,lo=65,hi=108, n=sales.length;
+  const X=i=>x0+i/(n-1)*(x1-x0), Y=v=>yb-(v-lo)/(hi-lo)*(yb-yt);
+  const ax=P(t,-7.4,-6.8);
+  let c='';
+  for(const v of [70,80,90,100]) c+=L(x0,Y(v),x1,Y(v),C.line,1)+T(x0-14,Y(v)+7,String(v),{size:20,a:'end',color:C.muted});
+  c+=T(x0,yb+40,'2024',{size:22,color:C.muted})+T(X(4),yb+40,'2025',{size:22,color:C.muted});
+  c+=T(x0-14,yt-22,'Index, start = 100',{size:20,color:C.muted});
+  g+=G(ax,c);
+  const draw=(arr,k)=>{const m=k*(n-1),f=Math.floor(m),pts=[];for(let i=0;i<=f&&i<n;i++)pts.push([X(i),Y(arr[i])]);
+    if(f<n-1){const fr=m-f;pts.push([lerp(X(f),X(f+1),fr),lerp(Y(arr[f]),Y(arr[f+1]),fr)]);}return pts;};
+  const ks=E(P(t,-7.0,-4.2)), kp=E(P(t,-6.6,-3.6));
+  if(ks>0){const p=draw(sales,ks);g+=`<path d="${pathFrom(p)}" fill="none" stroke="#9cc3f2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+`<circle cx="${p[p.length-1][0]}" cy="${p[p.length-1][1]}" r="8" fill="#9cc3f2"/>`;}
+  if(kp>0){const p=draw(prof,kp);g+=`<path d="${pathFrom(p)}" fill="none" stroke="${C.red}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`+`<circle cx="${p[p.length-1][0]}" cy="${p[p.length-1][1]}" r="8" fill="${C.red}"/>`;}
+  g+=G(P(t,-4.2,-3.7),T(x1+26,Y(102.3)+9,'Sales  +2.3%',{size:32,weight:700,color:'#9cc3f2'}));
+  g+=G(P(t,-3.6,-3.1),T(x1+26,Y(73.2)+9,'EBITDA  −27%',{size:32,weight:700,color:C.red}));
+  // the gap
+  const gp=EO(P(t,-2.9,-2.3));
+  if(gp>0){const gx=x1+6, ya=Y(102.3)+16, yb2=Y(73.2)-16, mid=(ya+yb2)/2;
+    g+=G(gp,L(gx,ya,gx,lerp(ya,yb2,gp),C.amber,3,{dash:'6 6'})+
+      `<circle cx="${gx+120}" cy="${mid}" r="${46*gp}" fill="${C.amber}" opacity=".16"/>`+T(gx+120,mid+14,'Why?',{size:40,a:'middle',weight:700,color:C.amber}));}
+  g+=T(960,905,'Often it only shows up months later, in the monthly report.',{size:36,a:'middle',color:'#c9d6e3',op:EO(P(t,-3.3,-2.7))});
+  g+=T(960,1000,'Illustration with synthetic data',{size:20,a:'middle',color:C.muted,op:ax});
+  return g;
+}
+
 function render(t){
+  if(t<0){
+    const op=P(t,-HOOK,-HOOK+0.5)*(1-P(t,-0.5,0));
+    document.getElementById('s').innerHTML=R(0,0,1920,1080,C.bg)+
+      `<radialGradient id="rg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#16263a"/><stop offset="1" stop-color="${C.bg}"/></radialGradient>`+
+      R(0,0,1920,1080,'url(#rg)')+G(op,s0(t));
+    return;
+  }
   let fade=P(t,0,0.4)*(1-P(t,DUR-0.5,DUR));
   const body=R(0,0,1920,1080,C.bg)+
     `<radialGradient id="rg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#16263a"/><stop offset="1" stop-color="${C.bg}"/></radialGradient>`+
@@ -414,5 +454,5 @@ function render(t){
 window.render=render;
 const q=new URLSearchParams(location.search);
 if(q.has('t')) render(parseFloat(q.get('t')));
-else if(!q.has('static')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%DUR);requestAnimationFrame(loop);})();}
+else if(!q.has('static')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%(DUR+HOOK)-HOOK);requestAnimationFrame(loop);})();}
 </script></body></html>
