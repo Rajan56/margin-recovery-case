@@ -1,0 +1,4 @@
+numpy>=1.26
+pandas>=2.1
+# optional, for the LLM mode of 05_ai_variance_commentary.py
+anthropic>=0.40
