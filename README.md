@@ -2,9 +2,9 @@
 
 **Live page:** https://rajan56.github.io/margin-recovery-case/
 
-**80-second walkthrough:** click the image to play the video (captions on screen, no sound needed).
+**100-second narrated walkthrough:** click the image to play the video (voiceover plus on-screen captions).
 
-[![Watch the 80-second walkthrough](docs/img/video_thumb.jpg)](https://rajan56.github.io/margin-recovery-case/docs/margin_recovery_case_80s.mp4)
+[![Watch the narrated walkthrough](docs/img/video_thumb.jpg)](https://rajan56.github.io/margin-recovery-case/docs/margin_recovery_case_narrated.mp4)
 
 This repository is a worked business performance case. It takes a margin problem from raw data to a decision:
 
@@ -58,8 +58,8 @@ powerbi/
   BUILD_GUIDE.md             step-by-step Power BI build, with expected values to check against
   outputs/                   flat outputs for Power BI pages
 site/                 page template and JavaScript (no external libraries)
-docs/                 walkthrough video, AI agent draft output, screenshots
-video/                source of the 80-second walkthrough (SVG animation drawn from case_results.json)
+docs/                 walkthrough videos, AI agent draft output, screenshots
+video/                source of the walkthrough video: SVG animation, voiceover and render scripts
 index.html            the published page (GitHub Pages)
 ```
 
@@ -100,15 +100,20 @@ The drivers reconcile to the reported change within €0.03.
 
 ## Walkthrough video
 
-`docs/margin_recovery_case_80s.mp4` (1920x1080, 30 fps, 80 s) is generated from code, not edited by hand. `video/animation_src.html` draws every frame as SVG from a single time value, using the same `case_results.json` as the page. `video/render.js` steps through the frames with Playwright and encodes them with ffmpeg.
+`docs/margin_recovery_case_narrated.mp4` (1920x1080, 30 fps, about 100 s, narrated) is generated from code, not edited by hand. A silent 80-second cut with captions only is kept as `docs/margin_recovery_case_80s.mp4`.
+
+- `video/animation_src.html` draws every frame as SVG from a single time value, using the same `case_results.json` as the page. It opens with a short hook (sales up, EBITDA down) before the seven steps.
+- `video/voiceover.py` writes one narration line per scene with an offline neural text-to-speech model (Kokoro, British English voice), then stretches each scene so the picture waits for the voice. It saves `voiceover.wav` and the time map `timemap.json`.
+- `video/render.js` steps through the frames with Playwright, follows the time map and encodes video and voice with ffmpeg.
 
 ```bash
 cd video
-python build.py                                     # embeds the case data into animation.html
-node render.js margin_recovery_case_80s.mp4         # needs Node, Playwright and ffmpeg
+python build.py                          # embeds the case data into animation.html
+python voiceover.py <kokoro_model_dir>   # narration + time map
+node render.js margin_recovery_case_narrated.mp4 timemap.json voiceover.wav
 ```
 
-Open `video/animation.html` in a browser to watch the animation loop live.
+Open `video/animation.html` in a browser to watch the animation loop live (without sound).
 
 ## Power BI report
 
