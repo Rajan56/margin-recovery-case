@@ -1,0 +1,690 @@
+createOrReplace
+
+	table dim_date
+
+		column month
+			dataType: string
+			sourceColumn: month
+
+		column year
+			dataType: int64
+			sourceColumn: year
+
+		column quarter
+			dataType: string
+			sourceColumn: quarter
+
+		column month_no
+			dataType: int64
+			sourceColumn: month_no
+
+		column month_start
+			dataType: string
+			sourceColumn: month_start
+
+		partition dim_date = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\dim_date.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"month", type text}, {"year", Int64.Type}, {"quarter", type text}, {"month_no", Int64.Type}, {"month_start", type text}}, "en-US")
+					in
+					    Typed
+
+	table dim_plant
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column plant_name
+			dataType: string
+			sourceColumn: plant_name
+
+		column country
+			dataType: string
+			sourceColumn: country
+
+		column currency
+			dataType: string
+			sourceColumn: currency
+
+		column base_mwh_per_t
+			dataType: double
+			sourceColumn: base_mwh_per_t
+
+		column board_usage_t_per_t
+			dataType: double
+			sourceColumn: board_usage_t_per_t
+
+		partition dim_plant = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\dim_plant.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"plant_id", type text}, {"plant_name", type text}, {"country", type text}, {"currency", type text}, {"base_mwh_per_t", type number}, {"board_usage_t_per_t", type number}}, "en-US")
+					in
+					    Typed
+
+	table dim_segment
+
+		column segment_id
+			dataType: string
+			sourceColumn: segment_id
+
+		column segment_name
+			dataType: string
+			sourceColumn: segment_name
+
+		column list_price_eur_t
+			dataType: double
+			sourceColumn: list_price_eur_t
+
+		column other_var_eur_t
+			dataType: double
+			sourceColumn: other_var_eur_t
+
+		partition dim_segment = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\dim_segment.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"segment_id", type text}, {"segment_name", type text}, {"list_price_eur_t", type number}, {"other_var_eur_t", type number}}, "en-US")
+					in
+					    Typed
+
+	table dim_customer
+
+		column customer_id
+			dataType: string
+			sourceColumn: customer_id
+
+		column customer_name
+			dataType: string
+			sourceColumn: customer_name
+
+		column tier
+			dataType: string
+			sourceColumn: tier
+
+		column contract_type
+			dataType: string
+			sourceColumn: contract_type
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column segment_id
+			dataType: string
+			sourceColumn: segment_id
+
+		column annual_volume_2024_t
+			dataType: double
+			sourceColumn: annual_volume_2024_t
+
+		column price_premium
+			dataType: double
+			sourceColumn: price_premium
+
+		column t_per_delivery
+			dataType: double
+			sourceColumn: t_per_delivery
+
+		column t_per_order
+			dataType: double
+			sourceColumn: t_per_order
+
+		column print_complexity
+			dataType: double
+			sourceColumn: print_complexity
+
+		partition dim_customer = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\dim_customer.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"customer_id", type text}, {"customer_name", type text}, {"tier", type text}, {"contract_type", type text}, {"plant_id", type text}, {"segment_id", type text}, {"annual_volume_2024_t", type number}, {"price_premium", type number}, {"t_per_delivery", type number}, {"t_per_order", type number}, {"print_complexity", type number}}, "en-US")
+					in
+					    Typed
+
+	table fact_fx
+
+		column month
+			dataType: string
+			sourceColumn: month
+
+		column sek_per_eur
+			dataType: double
+			sourceColumn: sek_per_eur
+
+		partition fact_fx = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\fact_fx.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"month", type text}, {"sek_per_eur", type number}}, "en-US")
+					in
+					    Typed
+
+	table fact_sales
+
+		column month
+			dataType: string
+			sourceColumn: month
+
+		column customer_id
+			dataType: string
+			sourceColumn: customer_id
+
+		column segment_id
+			dataType: string
+			sourceColumn: segment_id
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column currency
+			dataType: string
+			sourceColumn: currency
+
+		column volume_t
+			dataType: double
+			sourceColumn: volume_t
+
+		column net_sales_local
+			dataType: double
+			sourceColumn: net_sales_local
+
+		column net_sales_eur
+			dataType: double
+			sourceColumn: net_sales_eur
+
+		column orders
+			dataType: int64
+			sourceColumn: orders
+
+		column deliveries
+			dataType: int64
+			sourceColumn: deliveries
+
+		column freight_local
+			dataType: double
+			sourceColumn: freight_local
+
+		column freight_eur
+			dataType: double
+			sourceColumn: freight_eur
+
+		column order_handling_local
+			dataType: double
+			sourceColumn: order_handling_local
+
+		column order_handling_eur
+			dataType: double
+			sourceColumn: order_handling_eur
+
+		column Rate24 = LOOKUPVALUE ( fact_fx[sek_per_eur], fact_fx[month], "2024-" & RIGHT ( fact_sales[month], 2 ) )
+			dataType: double
+
+		column 'Sales CC' = IF ( fact_sales[currency] = "SEK", fact_sales[net_sales_local] / fact_sales[Rate24], fact_sales[net_sales_eur] )
+			dataType: double
+
+		column 'CTS CC' = IF ( fact_sales[currency] = "SEK", ( fact_sales[freight_local] + fact_sales[order_handling_local] ) / fact_sales[Rate24], fact_sales[freight_eur] + fact_sales[order_handling_eur] )
+			dataType: double
+
+		partition fact_sales = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\fact_sales.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"month", type text}, {"customer_id", type text}, {"segment_id", type text}, {"plant_id", type text}, {"currency", type text}, {"volume_t", type number}, {"net_sales_local", type number}, {"net_sales_eur", type number}, {"orders", Int64.Type}, {"deliveries", Int64.Type}, {"freight_local", type number}, {"freight_eur", type number}, {"order_handling_local", type number}, {"order_handling_eur", type number}}, "en-US")
+					in
+					    Typed
+
+	table fact_plant_cost
+
+		column month
+			dataType: string
+			sourceColumn: month
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column currency
+			dataType: string
+			sourceColumn: currency
+
+		column board_consumed_t
+			dataType: double
+			sourceColumn: board_consumed_t
+
+		column fibre_cost_eur
+			dataType: double
+			sourceColumn: fibre_cost_eur
+
+		column energy_mwh
+			dataType: double
+			sourceColumn: energy_mwh
+
+		column energy_cost_local
+			dataType: double
+			sourceColumn: energy_cost_local
+
+		column energy_cost_eur
+			dataType: double
+			sourceColumn: energy_cost_eur
+
+		column other_variable_eur
+			dataType: double
+			sourceColumn: other_variable_eur
+
+		column fixed_cost_local
+			dataType: double
+			sourceColumn: fixed_cost_local
+
+		column fixed_cost_eur
+			dataType: double
+			sourceColumn: fixed_cost_eur
+
+		column Rate24 = LOOKUPVALUE ( fact_fx[sek_per_eur], fact_fx[month], "2024-" & RIGHT ( fact_plant_cost[month], 2 ) )
+			dataType: double
+
+		column 'Fixed CC' = IF ( fact_plant_cost[currency] = "SEK", fact_plant_cost[fixed_cost_local] / fact_plant_cost[Rate24], fact_plant_cost[fixed_cost_eur] )
+			dataType: double
+
+		partition fact_plant_cost = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\data\fact_plant_cost.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"month", type text}, {"plant_id", type text}, {"currency", type text}, {"board_consumed_t", type number}, {"fibre_cost_eur", type number}, {"energy_mwh", type number}, {"energy_cost_local", type number}, {"energy_cost_eur", type number}, {"other_variable_eur", type number}, {"fixed_cost_local", type number}, {"fixed_cost_eur", type number}}, "en-US")
+					in
+					    Typed
+
+	table bridge
+
+		column order
+			dataType: int64
+			sourceColumn: order
+
+		column driver
+			dataType: string
+			sourceColumn: driver
+
+		column value_eur_m
+			dataType: double
+			sourceColumn: value_eur_m
+
+		partition bridge = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\powerbi\outputs\out_ebitda_bridge.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"order", Int64.Type}, {"driver", type text}, {"value_eur_m", type number}}, "en-US")
+					in
+					    Typed
+
+	table customer_profit
+
+		column customer_id
+			dataType: string
+			sourceColumn: customer_id
+
+		column tier
+			dataType: string
+			sourceColumn: tier
+
+		column contract_type
+			dataType: string
+			sourceColumn: contract_type
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column segment_id
+			dataType: string
+			sourceColumn: segment_id
+
+		column vol
+			dataType: double
+			sourceColumn: vol
+
+		column sales
+			dataType: double
+			sourceColumn: sales
+
+		column contribution_before_cts
+			dataType: double
+			sourceColumn: contribution_before_cts
+
+		column cost_to_serve
+			dataType: double
+			sourceColumn: cost_to_serve
+
+		column contribution_after_cts
+			dataType: double
+			sourceColumn: contribution_after_cts
+
+		column fixed_alloc
+			dataType: double
+			sourceColumn: fixed_alloc
+
+		column ebitda
+			dataType: double
+			sourceColumn: ebitda
+
+		column margin
+			dataType: double
+			sourceColumn: margin
+
+		column cts_per_t
+			dataType: double
+			sourceColumn: cts_per_t
+
+		column avg_order_t
+			dataType: double
+			sourceColumn: avg_order_t
+
+		partition customer_profit = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\powerbi\outputs\out_customer_profitability_2025.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"customer_id", type text}, {"tier", type text}, {"contract_type", type text}, {"plant_id", type text}, {"segment_id", type text}, {"vol", type number}, {"sales", type number}, {"contribution_before_cts", type number}, {"cost_to_serve", type number}, {"contribution_after_cts", type number}, {"fixed_alloc", type number}, {"ebitda", type number}, {"margin", type number}, {"cts_per_t", type number}, {"avg_order_t", type number}}, "en-US")
+					in
+					    Typed
+
+	table energy_weekly
+
+		column week_start
+			dataType: dateTime
+			sourceColumn: week_start
+
+		column plant_id
+			dataType: string
+			sourceColumn: plant_id
+
+		column production_t
+			dataType: double
+			sourceColumn: production_t
+
+		column energy_mwh
+			dataType: double
+			sourceColumn: energy_mwh
+
+		column intensity
+			dataType: double
+			sourceColumn: intensity
+
+		column baseline
+			dataType: double
+			sourceColumn: baseline
+
+		column dev
+			dataType: double
+			sourceColumn: dev
+
+		column dev_4w
+			dataType: double
+			sourceColumn: dev_4w
+
+		column breach
+			dataType: boolean
+			sourceColumn: breach
+
+		partition energy_weekly = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\powerbi\outputs\out_energy_weekly.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"week_start", type date}, {"plant_id", type text}, {"production_t", type number}, {"energy_mwh", type number}, {"intensity", type number}, {"baseline", type number}, {"dev", type number}, {"dev_4w", type number}, {"breach", type logical}}, "en-US")
+					in
+					    Typed
+
+	table initiatives
+
+		column id
+			dataType: string
+			sourceColumn: id
+
+		column name
+			dataType: string
+			sourceColumn: name
+
+		column lever
+			dataType: string
+			sourceColumn: lever
+
+		column value
+			dataType: double
+			sourceColumn: value
+
+		column effort
+			dataType: int64
+			sourceColumn: effort
+
+		column confidence
+			dataType: string
+			sourceColumn: confidence
+
+		column time_to_value
+			dataType: string
+			sourceColumn: time_to_value
+
+		column kpi
+			dataType: string
+			sourceColumn: kpi
+
+		column how
+			dataType: string
+			sourceColumn: how
+
+		column basis
+			dataType: string
+			sourceColumn: basis
+
+		partition initiatives = m
+			mode: import
+			source =
+					let
+					    Source = Csv.Document(File.Contents("C:\Users\rajan\Documents\margin-recovery-case\powerbi\outputs\out_initiatives.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					    Typed = Table.TransformColumnTypes(Promoted, {{"id", type text}, {"name", type text}, {"lever", type text}, {"value", type number}, {"effort", Int64.Type}, {"confidence", type text}, {"time_to_value", type text}, {"kpi", type text}, {"how", type text}, {"basis", type text}}, "en-US")
+					in
+					    Typed
+
+	table _Measures
+
+		measure 'Volume t' = SUM ( fact_sales[volume_t] )
+			formatString: #,0
+
+		measure 'Net Sales' = SUM ( fact_sales[net_sales_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Net Sales CC' = SUM ( fact_sales[Sales CC] )
+			formatString: \€#,0,,.0\m
+
+		measure Freight = SUM ( fact_sales[freight_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Order Handling' = SUM ( fact_sales[order_handling_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure Orders = SUM ( fact_sales[orders] )
+			formatString: #,0
+
+		measure 'Fibre Cost' = SUM ( fact_plant_cost[fibre_cost_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Energy Cost' = SUM ( fact_plant_cost[energy_cost_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Other Variable Cost' = SUM ( fact_plant_cost[other_variable_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Fixed Cost' = SUM ( fact_plant_cost[fixed_cost_eur] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Energy MWh' = SUM ( fact_plant_cost[energy_mwh] )
+			formatString: #,0
+
+		measure 'Board Consumed t' = SUM ( fact_plant_cost[board_consumed_t] )
+			formatString: #,0
+
+		measure 'Cost to Serve' = [Freight] + [Order Handling]
+			formatString: \€#,0,,.0\m
+
+		measure EBITDA = [Net Sales] - [Fibre Cost] - [Energy Cost] - [Other Variable Cost] - [Cost to Serve] - [Fixed Cost]
+			formatString: \€#,0,,.0\m
+
+		measure 'EBITDA Margin %' = DIVIDE ( [EBITDA], [Net Sales] )
+			formatString: 0.0%
+
+		measure 'Price per t' = DIVIDE ( [Net Sales], [Volume t] )
+			formatString: #,0
+
+		measure 'Fibre per t' = DIVIDE ( [Fibre Cost], [Volume t] )
+			formatString: #,0.0
+
+		measure 'Energy per t' = DIVIDE ( [Energy Cost], [Volume t] )
+			formatString: #,0.0
+
+		measure 'Cost to Serve per t' = DIVIDE ( [Cost to Serve], [Volume t] )
+			formatString: #,0.0
+
+		measure 'Fixed per t' = DIVIDE ( [Fixed Cost], [Volume t] )
+			formatString: #,0.0
+
+		measure 'EBITDA per t' = DIVIDE ( [EBITDA], [Volume t] )
+			formatString: #,0.0
+
+		measure 'Board Usage t per t' = DIVIDE ( [Board Consumed t], [Volume t] )
+			formatString: 0.000
+
+		measure 'Energy MWh per t' = DIVIDE ( [Energy MWh], [Volume t] )
+			formatString: 0.000
+
+		measure 'Orders per 1000 t' = DIVIDE ( [Orders], [Volume t] ) * 1000
+			formatString: #,0.0
+
+		measure 'EBITDA FY2024' = CALCULATE ( [EBITDA], dim_date[year] = 2024 )
+			formatString: \€#,0,,.0\m
+
+		measure 'EBITDA FY2025' = CALCULATE ( [EBITDA], dim_date[year] = 2025 )
+			formatString: \€#,0,,.0\m
+
+		measure 'EBITDA Change' = [EBITDA FY2025] - [EBITDA FY2024]
+			formatString: \€#,0,,.0\m
+
+		measure 'Net Sales FY2025' = CALCULATE ( [Net Sales], dim_date[year] = 2025 )
+			formatString: \€#,0,,.0\m
+
+		measure 'EBITDA Margin FY2024' = CALCULATE ( [EBITDA Margin %], dim_date[year] = 2024 )
+			formatString: 0.0%
+
+		measure 'EBITDA Margin FY2025' = CALCULATE ( [EBITDA Margin %], dim_date[year] = 2025 )
+			formatString: 0.0%
+
+		measure 'Price Effect CC' = SUMX ( VALUES ( dim_customer[customer_id] ), VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 ) VAR V24 = CALCULATE ( [Volume t], dim_date[year] = 2024 ) VAR P25 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2025 ), V25 ) VAR P24 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2024 ), V24 ) RETURN V25 * ( P25 - P24 ) )
+			formatString: \€#,0,,.0\m
+
+		measure 'Cost to Serve Effect CC' = SUMX ( VALUES ( dim_customer[customer_id] ), VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 ) VAR V24 = CALCULATE ( [Volume t], dim_date[year] = 2024 ) VAR C25 = DIVIDE ( CALCULATE ( SUM ( fact_sales[CTS CC] ), dim_date[year] = 2025 ), V25 ) VAR C24 = DIVIDE ( CALCULATE ( SUM ( fact_sales[CTS CC] ), dim_date[year] = 2024 ), V24 ) RETURN - V25 * ( C25 - C24 ) )
+			formatString: \€#,0,,.0\m
+
+		measure 'Fibre Effect' = SUMX ( VALUES ( dim_plant[plant_id] ), VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 ) VAR R25 = CALCULATE ( [Fibre per t], dim_date[year] = 2025 ) VAR R24 = CALCULATE ( [Fibre per t], dim_date[year] = 2024 ) RETURN - V25 * ( R25 - R24 ) )
+			formatString: \€#,0,,.0\m
+
+		measure 'Fixed Cost Effect CC' = - ( CALCULATE ( SUM ( fact_plant_cost[Fixed CC] ), dim_date[year] = 2025 ) - CALCULATE ( [Fixed Cost], dim_date[year] = 2024 ) )
+			formatString: \€#,0,,.0\m
+
+		measure 'Bridge Value' = SUM ( bridge[value_eur_m] )
+			formatString: #,0.00
+
+		measure 'Customer EBITDA' = SUM ( customer_profit[ebitda] )
+			formatString: \€#,0,,.0\m
+
+		measure 'Customer EBITDA Margin' = DIVIDE ( SUM ( customer_profit[ebitda] ), SUM ( customer_profit[sales] ) )
+			formatString: 0.0%
+
+		measure 'Customer Cost to Serve per t' = DIVIDE ( SUM ( customer_profit[cost_to_serve] ), SUM ( customer_profit[vol] ) )
+			formatString: #,0
+
+		measure 'Loss-making Customers' = CALCULATE ( DISTINCTCOUNT ( customer_profit[customer_id] ), customer_profit[ebitda] < 0 )
+			formatString: #,0
+
+		measure Customers = DISTINCTCOUNT ( customer_profit[customer_id] )
+			formatString: #,0
+
+		measure 'Cumulative EBITDA %' = VAR ThisEbitda = SELECTEDVALUE ( customer_profit[ebitda] ) VAR Cum = CALCULATE ( SUM ( customer_profit[ebitda] ), FILTER ( ALL ( customer_profit ), customer_profit[ebitda] >= ThisEbitda ) ) RETURN DIVIDE ( Cum, CALCULATE ( SUM ( customer_profit[ebitda] ), ALL ( customer_profit ) ) )
+			formatString: 0.0%
+
+		measure 'Energy Intensity' = AVERAGE ( energy_weekly[intensity] )
+			formatString: 0.000
+
+		measure 'Energy Baseline' = AVERAGE ( energy_weekly[baseline] )
+			formatString: 0.000
+
+		measure 'Weeks in Alert' = CALCULATE ( COUNTROWS ( energy_weekly ), energy_weekly[dev_4w] > 0.06 )
+			formatString: #,0
+
+		measure 'Initiative Value' = SUM ( initiatives[value] )
+			formatString: #,0.00
+
+		column Dummy
+			dataType: string
+			isHidden
+			sourceColumn: Dummy
+
+		partition _Measures = m
+			mode: import
+			source =
+					let
+					    Source = #table(type table [Dummy = text], {})
+					in
+					    Source
+
+	relationship rel_fact_sales_dim_date
+		fromColumn: fact_sales.month
+		toColumn: dim_date.month
+
+	relationship rel_fact_sales_dim_customer
+		fromColumn: fact_sales.customer_id
+		toColumn: dim_customer.customer_id
+
+	relationship rel_fact_sales_dim_segment
+		fromColumn: fact_sales.segment_id
+		toColumn: dim_segment.segment_id
+
+	relationship rel_fact_sales_dim_plant
+		fromColumn: fact_sales.plant_id
+		toColumn: dim_plant.plant_id
+
+	relationship rel_fact_plant_cost_dim_date
+		fromColumn: fact_plant_cost.month
+		toColumn: dim_date.month
+
+	relationship rel_fact_plant_cost_dim_plant
+		fromColumn: fact_plant_cost.plant_id
+		toColumn: dim_plant.plant_id
+
+	relationship rel_customer_profit_dim_customer
+		fromColumn: customer_profit.customer_id
+		toColumn: dim_customer.customer_id
+
+	relationship rel_energy_weekly_dim_plant
+		fromColumn: energy_weekly.plant_id
+		toColumn: dim_plant.plant_id

@@ -1,0 +1,167 @@
+// =====================================================================
+// Northfold Packaging case (fictional, synthetic data): Power BI model
+// Create a table called _Measures (Enter data, one empty column) and
+// add each measure below to it. Calculated columns are marked as such.
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// CALCULATED COLUMNS (constant currency: FY2025 SEK at FY2024 monthly rate)
+// ---------------------------------------------------------------------
+
+// fact_sales[Rate24]
+Rate24 =
+LOOKUPVALUE (
+    fact_fx[sek_per_eur],
+    fact_fx[month], "2024-" & RIGHT ( fact_sales[month], 2 )
+)
+
+// fact_sales[Sales CC]
+Sales CC =
+IF ( fact_sales[currency] = "SEK",
+     fact_sales[net_sales_local] / fact_sales[Rate24],
+     fact_sales[net_sales_eur] )
+
+// fact_sales[CTS CC]   (freight + order handling)
+CTS CC =
+IF ( fact_sales[currency] = "SEK",
+     ( fact_sales[freight_local] + fact_sales[order_handling_local] ) / fact_sales[Rate24],
+     fact_sales[freight_eur] + fact_sales[order_handling_eur] )
+
+// fact_plant_cost[Rate24]
+Rate24 =
+LOOKUPVALUE (
+    fact_fx[sek_per_eur],
+    fact_fx[month], "2024-" & RIGHT ( fact_plant_cost[month], 2 )
+)
+
+// fact_plant_cost[Energy CC]
+Energy CC =
+IF ( fact_plant_cost[currency] = "SEK",
+     fact_plant_cost[energy_cost_local] / fact_plant_cost[Rate24],
+     fact_plant_cost[energy_cost_eur] )
+
+// fact_plant_cost[Fixed CC]
+Fixed CC =
+IF ( fact_plant_cost[currency] = "SEK",
+     fact_plant_cost[fixed_cost_local] / fact_plant_cost[Rate24],
+     fact_plant_cost[fixed_cost_eur] )
+
+// fact_energy_week[MWh per t]
+MWh per t = DIVIDE ( fact_energy_week[energy_mwh], fact_energy_week[production_t] )
+
+
+// ---------------------------------------------------------------------
+// BASE MEASURES
+// ---------------------------------------------------------------------
+Volume t            = SUM ( fact_sales[volume_t] )
+Net Sales           = SUM ( fact_sales[net_sales_eur] )
+Net Sales CC        = SUM ( fact_sales[Sales CC] )
+Freight             = SUM ( fact_sales[freight_eur] )
+Order Handling      = SUM ( fact_sales[order_handling_eur] )
+Orders              = SUM ( fact_sales[orders] )
+Deliveries          = SUM ( fact_sales[deliveries] )
+Fibre Cost          = SUM ( fact_plant_cost[fibre_cost_eur] )
+Energy Cost         = SUM ( fact_plant_cost[energy_cost_eur] )
+Other Variable Cost = SUM ( fact_plant_cost[other_variable_eur] )
+Fixed Cost          = SUM ( fact_plant_cost[fixed_cost_eur] )
+Energy MWh          = SUM ( fact_plant_cost[energy_mwh] )
+Board Consumed t    = SUM ( fact_plant_cost[board_consumed_t] )
+
+// ---------------------------------------------------------------------
+// P&L AND KPIs
+// ---------------------------------------------------------------------
+Cost to Serve = [Freight] + [Order Handling]
+
+EBITDA =
+    [Net Sales] - [Fibre Cost] - [Energy Cost] - [Other Variable Cost]
+  - [Cost to Serve] - [Fixed Cost]
+
+EBITDA Margin % = DIVIDE ( [EBITDA], [Net Sales] )
+
+Price per t          = DIVIDE ( [Net Sales], [Volume t] )
+Fibre per t          = DIVIDE ( [Fibre Cost], [Volume t] )
+Energy per t         = DIVIDE ( [Energy Cost], [Volume t] )
+Cost to Serve per t  = DIVIDE ( [Cost to Serve], [Volume t] )
+Fixed per t          = DIVIDE ( [Fixed Cost], [Volume t] )
+EBITDA per t         = DIVIDE ( [EBITDA], [Volume t] )
+Board Usage t per t  = DIVIDE ( [Board Consumed t], [Volume t] )
+Energy MWh per t     = DIVIDE ( [Energy MWh], [Volume t] )
+Orders per 1000 t    = DIVIDE ( [Orders], [Volume t] ) * 1000
+Avg Order t          = DIVIDE ( [Volume t], [Orders] )
+
+// ---------------------------------------------------------------------
+// YEAR-ON-YEAR (use with dim_date[year] on a slicer or axis)
+// ---------------------------------------------------------------------
+EBITDA FY2024 = CALCULATE ( [EBITDA], dim_date[year] = 2024 )
+EBITDA FY2025 = CALCULATE ( [EBITDA], dim_date[year] = 2025 )
+EBITDA Change = [EBITDA FY2025] - [EBITDA FY2024]
+
+EBITDA Margin Change pp =
+    ( CALCULATE ( [EBITDA Margin %], dim_date[year] = 2025 )
+    - CALCULATE ( [EBITDA Margin %], dim_date[year] = 2024 ) ) * 100
+
+// ---------------------------------------------------------------------
+// BRIDGE DRIVERS (customer level; check against outputs/out_ebitda_bridge.csv)
+// The variables sit INSIDE SUMX so they are evaluated per customer.
+// ---------------------------------------------------------------------
+Price Effect CC =
+SUMX (
+    VALUES ( dim_customer[customer_id] ),
+    VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 )
+    VAR V24 = CALCULATE ( [Volume t], dim_date[year] = 2024 )
+    VAR P25 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2025 ), V25 )
+    VAR P24 = DIVIDE ( CALCULATE ( [Net Sales CC], dim_date[year] = 2024 ), V24 )
+    RETURN V25 * ( P25 - P24 )
+)
+
+Cost to Serve Effect CC =
+SUMX (
+    VALUES ( dim_customer[customer_id] ),
+    VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 )
+    VAR V24 = CALCULATE ( [Volume t], dim_date[year] = 2024 )
+    VAR C25 = DIVIDE ( CALCULATE ( SUM ( fact_sales[CTS CC] ), dim_date[year] = 2025 ), V25 )
+    VAR C24 = DIVIDE ( CALCULATE ( SUM ( fact_sales[CTS CC] ), dim_date[year] = 2024 ), V24 )
+    RETURN - V25 * ( C25 - C24 )
+)
+
+// Fibre cost is bought in EUR, so no FX restatement is needed; plant-level rate
+Fibre Effect =
+SUMX (
+    VALUES ( dim_plant[plant_id] ),
+    VAR V25 = CALCULATE ( [Volume t], dim_date[year] = 2025 )
+    VAR R25 = CALCULATE ( [Fibre per t], dim_date[year] = 2025 )
+    VAR R24 = CALCULATE ( [Fibre per t], dim_date[year] = 2024 )
+    RETURN - V25 * ( R25 - R24 )
+)
+
+Fixed Cost Effect CC =
+    - ( CALCULATE ( SUM ( fact_plant_cost[Fixed CC] ), dim_date[year] = 2025 )
+      - CALCULATE ( [Fixed Cost], dim_date[year] = 2024 ) )
+
+// ---------------------------------------------------------------------
+// ENERGY ALERTING (on outputs/out_energy_weekly.csv, loaded as energy_weekly)
+// ---------------------------------------------------------------------
+Weeks in Alert =
+CALCULATE ( COUNTROWS ( energy_weekly ), energy_weekly[dev_4w] > 0.06 )
+
+Latest 4w Deviation % =
+VAR LastWeek = MAX ( energy_weekly[week_start] )
+RETURN CALCULATE ( MAX ( energy_weekly[dev_4w] ), energy_weekly[week_start] = LastWeek )
+
+// ---------------------------------------------------------------------
+// CUSTOMER PROFITABILITY (on outputs/out_customer_profitability_2025.csv,
+// loaded as customer_profit)
+// ---------------------------------------------------------------------
+Customer EBITDA = SUM ( customer_profit[ebitda] )
+
+Loss-making Customers =
+CALCULATE ( DISTINCTCOUNT ( customer_profit[customer_id] ), customer_profit[ebitda] < 0 )
+
+Cumulative EBITDA % (whale curve) =
+VAR ThisEbitda = SELECTEDVALUE ( customer_profit[ebitda] )
+VAR Cum =
+    CALCULATE (
+        SUM ( customer_profit[ebitda] ),
+        FILTER ( ALL ( customer_profit ), customer_profit[ebitda] >= ThisEbitda )
+    )
+RETURN DIVIDE ( Cum, CALCULATE ( SUM ( customer_profit[ebitda] ), ALL ( customer_profit ) ) )
