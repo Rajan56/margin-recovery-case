@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Margin Recovery Case animation</title>
+<style>
+html,body{margin:0;padding:0;background:#0d141c;overflow:hidden}
+svg{display:block}
+</style></head>
+<body>
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+const D = /*__DATA__*/;
+const DUR = 80;
+const F = "Carlito, 'DejaVu Sans', sans-serif";
+const C = {bg:'#0d141c', panel:'#15202c', line:'#243242', text:'#eef3f8', muted:'#8b9bb0',
+           blue:'#3987e5', red:'#e66767', green:'#3fb58a', amber:'#e3a84a', grey:'#5b6b7e'};
+
+// ---------- helpers
+const clamp = (x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const P = (t,a,b)=>clamp((t-a)/(b-a));
+const E = x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;};   // ease in-out
+const EO = x=>1-Math.pow(1-clamp(x),3);                                    // ease out
+const lerp=(a,b,x)=>a+(b-a)*x;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function T(x,y,s,o={}){
+  const a=o.a||'start', sz=o.size||28, c=o.color||C.text, w=o.weight||400, op=o.op==null?1:o.op;
+  if(op<=0.001) return '';
+  const ls=o.ls?` letter-spacing="${o.ls}"`:'';
+  const lines=String(s).split('\n');
+  const lh=o.lh||sz*1.2;
+  return `<text x="${x}" y="${y}" font-family="${F}" font-size="${sz}" fill="${c}" font-weight="${w}" text-anchor="${a}" opacity="${op}"${ls}>`+
+    lines.map((l,i)=>`<tspan x="${x}" dy="${i?lh:0}">${esc(l)}</tspan>`).join('')+`</text>`;
+}
+const R=(x,y,w,h,c,o={})=>`<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" rx="${o.rx||0}" fill="${c}" opacity="${o.op==null?1:o.op}"${o.stroke?` stroke="${o.stroke}" stroke-width="${o.sw||2}"`:''}/>`;
+const L=(x1,y1,x2,y2,c,w=2,o={})=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" opacity="${o.op==null?1:o.op}"${o.dash?` stroke-dasharray="${o.dash}"`:''} stroke-linecap="round"/>`;
+const G=(op,inner,tr='')=>op<=0.001?'':`<g opacity="${op}"${tr?` transform="${tr}"`:''}>${inner}</g>`;
+const eur=(v,d=1)=>(v<0?'−':'')+'€'+Math.abs(v).toFixed(d)+'m';
+const sgn=(v,d=1)=>(v<0?'−':'+')+Math.abs(v).toFixed(d);
+// scene window opacity
+const W=(t,a,b,f=0.5)=>P(t,a,a+f)*(1-P(t,b-f,b));
+function check(x,y,s,c,op=1){return G(op,`<circle cx="${x}" cy="${y}" r="${s}" fill="${c}"/><path d="M${x-s*.45} ${y} l${s*.3} ${s*.32} l${s*.55} ${-s*.6}" stroke="${C.bg}" stroke-width="${s*.22}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);}
+function pathFrom(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');}
+
+// ---------- global chrome: header, captions, progress
+const STEPS=[['Problem',0,8],['Data',8,18],['Bridge',18,35],['Customers',35,47],['Energy',47,58],['AI agent',58,68],['Plan',68,80]];
+const CAPS=[
+  [3,8,'Sales grew 2.3%, yet EBITDA fell by €17.6m. Where did the margin go?'],
+  [8.3,13,'Step 1. Join sales, costs, energy, logistics and FX data into one star schema.'],
+  [13,18,'Step 2. Check the numbers three ways before trusting any chart.'],
+  [18.3,27,'Step 3. A driver-based EBITDA bridge, built at customer level in constant currency.'],
+  [27,31,'Fibre, energy and a weaker SEK explain €15.0m. That part is the market.'],
+  [31,35,'Price is controllable: fixed annual contracts lost €9.0m while indexed ones gained.'],
+  [35.3,41,'Step 4. Rank every customer by EBITDA after cost-to-serve.'],
+  [41,47,'29 accounts lose money. Serving small accounts costs €316 per tonne, key accounts €46.'],
+  [47.3,53,'Step 5. Compare each plant’s weekly energy use with its own seasonal baseline.'],
+  [53,58,'The weekly rule flags the drift after six weeks. The monthly report showed only +4.3%.'],
+  [58.3,63,'Step 6. An AI agent drafts the variance commentary from verified facts only.'],
+  [63,68,'Every number is traced back to the facts, and a controller signs off.'],
+  [68.3,75,'Step 7. Five initiatives worth about €8.4m a year, each with a KPI and an owner.'],
+];
+function chrome(t){
+  let s='';
+  const hop=P(t,0.3,1.3);
+  s+=T(80,70,'MARGIN RECOVERY CASE',{size:22,color:C.muted,weight:700,ls:3,op:hop});
+  s+=T(1840,70,'Northfold Packaging  |  fictional company, synthetic data',{size:22,color:C.muted,a:'end',op:hop});
+  // captions
+  for(const [a,b,txt] of CAPS){
+    const op=W(t,a,b,0.35); if(op<=0) continue;
+    const dy=(1-EO(P(t,a,a+0.5)))*14;
+    s+=G(op,R(0,888,1920,92,'#0a1017',{op:.72})+T(960,946+dy,txt,{size:36,a:'middle',weight:400}));
+  }
+  // progress
+  const pop=P(t,3,4)*(1-P(t,75.5,76.5));
+  if(pop>0){
+    let g='';const x0=160,x1=1760,step=(x1-x0)/STEPS.length;
+    STEPS.forEach(([n,a,b],i)=>{
+      const x=x0+i*step, fill=P(t,a,b), active=t>=a&&t<b;
+      g+=R(x+4,1016,step-8,5,C.line,{rx:2.5})+R(x+4,1016,(step-8)*fill,5,active?C.blue:'#4f6f94',{rx:2.5});
+      g+=T(x+step/2,1052,n,{size:20,a:'middle',color:active?C.text:C.muted,weight:active?700:400});
+    });
+    s+=G(pop,g);
+  }
+  return s;
+}
+
+// ---------- scene 1: problem (0 to 8)
+function s1(t){
+  let s='';
+  const tOp=W(t,0,3.2,0.6);
+  s+=G(tOp,
+    T(960,470,'Sales grew. EBITDA fell by a quarter.',{size:76,a:'middle',weight:700})+
+    T(960,545,'How I would diagnose a margin problem, from raw data to a decision',{size:34,a:'middle',color:C.muted})+
+    R(860,590,200,4,C.blue,{rx:2,op:EO(P(t,0.8,2))}),'');
+  const op=W(t,3,8.3,0.6); if(op<=0) return s;
+  const pnl=D.pnl; const k=E(P(t,4,6.2));
+  const cards=[
+    ['Net sales',505.7,517.5,'+2.3%',C.green],
+    ['EBITDA',65.6,48.0,'−€17.6m',C.red],
+    ['EBITDA margin',13.0,9.3,'−3.7 pp',C.red],
+  ];
+  let g='';
+  cards.forEach((c,i)=>{
+    const x=190+i*540, y=300, w=460, h=420;
+    const ci=EO(P(t,3.2+i*.25,4+i*.25));
+    const v=lerp(c[1],c[2],k);
+    const val=i==2?v.toFixed(1)+'%':'€'+v.toFixed(1)+'m';
+    let q=R(x,y,w,h,C.panel,{rx:18})+T(x+40,y+70,c[0],{size:34,color:C.muted});
+    q+=T(x+40,y+150,'FY2024',{size:24,color:C.muted})+T(x+w-40,y+150,i==2?c[1].toFixed(1)+'%':'€'+c[1].toFixed(1)+'m',{size:30,a:'end',color:C.muted});
+    q+=T(x+40,y+215,'FY2025',{size:24,color:C.muted});
+    q+=T(x+40,y+310,val,{size:88,weight:700,color:k>0.98?(i==0?C.text:C.red):C.text});
+    q+=G(P(t,6.2,6.8),R(x+40,y+345,190,48,c[4],{rx:24,op:.18})+T(x+135,y+379,c[3],{size:28,a:'middle',weight:700,color:c[4]}));
+    g+=G(ci,q,`translate(0 ${(1-ci)*30})`);
+  });
+  return s+G(op,g);
+}
+
+// ---------- scene 2: data + validation (8 to 18)
+function s2(t){
+  const op=W(t,8,18.3,0.5); if(op<=0) return '';
+  let s='';
+  const a1=W(t,8,13.4,0.5);
+  if(a1>0){
+    const srcs=['ERP sales orders','Cost ledger','Energy meters','Logistics','FX rates'];
+    let g='';
+    const cx=1180, cy=500;
+    srcs.forEach((n,i)=>{
+      const y=250+i*125, e=EO(P(t,8.3+i*.18,9+i*.18));
+      g+=G(e,R(200,y-38,380,76,C.panel,{rx:12})+R(200,y-38,8,76,C.blue,{rx:4})+T(235,y+10,n,{size:30}),`translate(${(1-e)*-40} 0)`);
+      const fl=E(P(t,9.2+i*.15,10.4+i*.15));
+      if(fl>0){g+=L(580,y,lerp(580,cx-150,fl),lerp(y,cy,fl),C.blue,3,{op:.6});}
+      const dot=(t*0.9+i*0.21)%1;
+      if(t>10.4) g+=`<circle cx="${lerp(580,cx-150,dot)}" cy="${lerp(y,cy,dot)}" r="6" fill="${C.blue}"/>`;
+    });
+    const f=EO(P(t,9.8,10.8));
+    const dims=[['dim_date',0,-190],['dim_customer',330,-80],['dim_plant',330,110],['dim_product',0,200]];
+    let st='';
+    dims.forEach(([n,dx,dy],i)=>{
+      const e=EO(P(t,10.4+i*.2,11.2+i*.2));
+      st+=L(cx,cy,cx+dx*e,cy+dy*e,C.grey,2,{op:e});
+      st+=G(e,R(cx+dx-110,cy+dy-30,220,60,'#1c2a38',{rx:10,stroke:C.grey,sw:1.5})+T(cx+dx,cy+dy+9,n,{size:26,a:'middle',color:'#c9d6e3'}));
+    });
+    st+=G(f,R(cx-150,cy-45,300,90,C.blue,{rx:14})+T(cx,cy+11,'fact_sales',{size:34,a:'middle',weight:700}));
+    st+=G(P(t,11.4,12),T(cx+120,cy+320,'1,920 customer-month rows  |  80 customers  |  5 plants',{size:24,a:'middle',color:C.muted}));
+    g+=st;
+    s+=G(a1,g);
+  }
+  const a2=W(t,13,18.3,0.5);
+  if(a2>0){
+    let g='';
+    const tiles=[['Python','pandas pipeline','47,999,606'],['SQL','SQLite views','47,999,606'],['Power BI','DAX measure','47,999,606']];
+    tiles.forEach((c,i)=>{
+      const x=250+i*490, y=260, e=EO(P(t,13.3+i*.35,14.1+i*.35));
+      let q=R(x,y,440,330,C.panel,{rx:18})+T(x+40,y+75,c[0],{size:48,weight:700})+T(x+40,y+118,c[1],{size:26,color:C.muted});
+      q+=T(x+40,y+200,'EBITDA FY2025 (€)',{size:24,color:C.muted})+T(x+40,y+262,c[2],{size:56,weight:700});
+      q+=check(x+385,y+65,26,C.green,P(t,14.6+i*.35,15+i*.35));
+      g+=G(e,q,`translate(0 ${(1-e)*30})`);
+    });
+    const n=Math.round(18*E(P(t,15.2,17)));
+    g+=G(P(t,15,15.5),R(610,650,700,90,'#12301f',{rx:45})+check(665,695,24,C.green)+
+      T(710,708,`${n} of 18 reconciliation checks passed`,{size:34,weight:700,color:'#bfeed7'}));
+    s+=G(a2,g);
+  }
+  return G(op,s);
+}
+
+// ---------- scene 3: EBITDA bridge (18 to 35)
+function s3(t){
+  const op=W(t,18,35.3,0.5); if(op<=0) return '';
+  const br=D.bridge; const e24=D.pnl?65.61:65.61, e25=48.00;
+  const items=[{l:'EBITDA\n2024',v:e24,tot:true}].concat(br.map(b=>({l:b.label.replace('Fibre cost','Fibre').replace('Energy cost','Energy').replace('Cost-to-serve','Cost to\nserve').replace('Other variable','Other\nvariable').replace('Fixed costs','Fixed\ncosts').replace('FX (SEK)','FX\n(SEK)'),v:b.value}))).concat([{l:'EBITDA\n2025',v:e25,tot:true}]);
+  const x0=150, x1=1240, ybot=800, ytop=190, lo=40, hi=75;
+  const Y=v=>ybot-(v-lo)/(hi-lo)*(ybot-ytop);
+  const n=items.length, step=(x1-x0)/n, bw=62;
+  const market=['Fibre','Energy','FX\n(SEK)'];
+  const hlM=W(t,27,31.2,0.4), hlP=P(t,31,31.5);
+  let g='';
+  // axis
+  for(let v=40;v<=75;v+=5){g+=L(x0-10,Y(v),x1,Y(v),C.line,1)+T(x0-20,Y(v)+8,'€'+v+'m',{size:20,a:'end',color:C.muted});}
+  g+=T(x0-20,ytop-30,'EBITDA, € million (axis starts at €40m)',{size:22,color:C.muted});
+  let cum=0;
+  items.forEach((it,i)=>{
+    const ts=18.6+i*0.72, e=EO(P(t,ts,ts+0.6));
+    const x=x0+i*step+(step-bw)/2;
+    let top,bot,col;
+    if(it.tot){top=Y(it.v);bot=Y(lo);col=C.blue;cum=it.v;}
+    else{const a=cum,b=cum+it.v;top=Y(Math.max(a,b));bot=Y(Math.min(a,b));col=it.v>=0?C.green:C.red;
+      if(i<n-1&&e>0){}
+      cum=b;}
+    let dim=1;
+    if(hlM>0&&!it.tot) dim=lerp(1,market.includes(it.l)?1:0.25,hlM);
+    if(hlP>0&&!it.tot) dim=lerp(1,it.l==='Price'?1:0.25,hlP);
+    const h=(bot-top)*e;
+    const grow=it.tot||it.v<0? top : bot-h;  // negatives grow downward from previous level
+    const yy=it.tot?bot-h:(it.v<0?top:bot-h);
+    g+=G(e>0?dim:0,R(x,yy,bw,h,col,{rx:3}));
+    // connector
+    if(i<n-1&&e>0.95){const nx=x0+(i+1)*step+(step-bw)/2;g+=L(x+bw,Y(cum),nx,Y(cum),C.grey,1.5,{op:.8*dim,dash:'4 4'});}
+    const lbl=it.tot?'€'+it.v.toFixed(1)+'m':sgn(it.v);
+    g+=T(x+bw/2,(it.tot||it.v>=0?top:bot)+(it.tot||it.v>=0?-12:30),lbl,{size:23,a:'middle',weight:700,color:it.tot?C.text:col,op:P(t,ts+.4,ts+.8)*dim});
+    g+=T(x+bw/2,ybot+36,it.l,{size:20,a:'middle',color:C.muted,op:e*Math.max(dim,.5),lh:22});
+  });
+  // market bracket
+  if(hlM>0){
+    let q=R(1320,250,520,300,C.panel,{rx:18})+T(1360,315,'Market drivers',{size:30,color:C.muted});
+    q+=T(1360,405,'−€15.0m',{size:84,weight:700,color:C.red});
+    q+=T(1360,460,'Fibre −7.8  |  Energy −2.3  |  FX −4.8',{size:26,color:'#c9d6e3'});
+    q+=T(1360,505,'of the −€17.6m change',{size:24,color:C.muted});
+    g+=G(hlM,q,`translate(${(1-EO(P(t,27,27.6)))*40} 0)`);
+  }
+  if(hlP>0){
+    const pc=[['Fixed annual',-9.01,'−3.4% per t'],['Indexed',3.29,'+1.1% per t'],['List price',1.17,'+2.1% per t']];
+    let q=R(1300,190,560,560,C.panel,{rx:18})+T(1340,250,'Price effect by contract type',{size:28,weight:700})+T(1340,285,'€ million, constant currency',{size:22,color:C.muted});
+    const zx=1630, sc=22;
+    q+=L(zx,325,zx,660,C.grey,2);
+    pc.forEach((c,i)=>{
+      const y=320+i*115, e=EO(P(t,31.6+i*.3,32.4+i*.3)), w=Math.abs(c[1])*sc*e;
+      q+=T(1340,y+26,c[0],{size:26})+T(1820,y+26,c[2],{size:20,a:'end',color:C.muted,op:e});
+      q+=R(c[1]<0?zx-w:zx,y+42,w,42,c[1]<0?C.red:C.green,{rx:4});
+      q+=T(c[1]<0?zx-w-10:zx+w+10,y+73,sgn(c[1]),{size:26,weight:700,a:c[1]<0?'end':'start',color:c[1]<0?C.red:C.green,op:e});
+    });
+    q+=T(1340,705,'Fixed contracts carry half of all volume.',{size:24,color:'#c9d6e3',op:P(t,33,33.5)});
+    g+=G(hlP,q,`translate(${(1-EO(P(t,31,31.6)))*40} 0)`);
+  }
+  return G(op,g);
+}
+
+// ---------- scene 4: customers (35 to 47)
+function s4(t){
+  const op=W(t,35,47.3,0.5); if(op<=0) return '';
+  const w=D.whale_curve, n=w.length;
+  const x0=200, x1=1150, yb=780, yt=220, hi=120;
+  const X=i=>x0+i/(n-1)*(x1-x0), Y=v=>yb-v/hi*(yb-yt);
+  let g='';
+  for(let v=0;v<=120;v+=20){g+=L(x0,Y(v),x1,Y(v),C.line,1)+T(x0-15,Y(v)+8,v+'%',{size:20,a:'end',color:C.muted});}
+  g+=T(x0-15,yt-40,'Cumulative EBITDA, % of total',{size:22,color:C.muted});
+  g+=T((x0+x1)/2,yb+45,'Customers ranked from most to least profitable (80)',{size:22,a:'middle',color:C.muted});
+  g+=L(x0,Y(100),x1,Y(100),C.grey,2,{dash:'8 6'});
+  const k=E(P(t,35.8,40));
+  const m=Math.max(1,Math.floor(k*(n-1)));
+  const pts=[[X(0),Y(0)]];
+  for(let i=0;i<=m;i++) pts.push([X(i),Y(w[i])]);
+  if(m<n-1){const fr=k*(n-1)-m; pts.push([lerp(X(m),X(m+1),fr),Y(lerp(w[m],w[m+1],fr))]);}
+  const pk=w.indexOf(Math.max(...w));
+  // red tail
+  const tail=P(t,41,42);
+  if(tail>0){
+    const tp=[];for(let i=pk;i<n;i++)tp.push([X(i),Y(w[i])]);
+    g+=`<path d="${pathFrom(tp)} L${X(n-1)} ${Y(w[pk])} Z" fill="${C.red}" opacity="${.25*tail}"/>`;
+  }
+  g+=`<path d="${pathFrom(pts)}" fill="none" stroke="${C.blue}" stroke-width="5" stroke-linejoin="round"/>`;
+  const pe=P(t,39.8,40.4);
+  g+=G(pe,`<circle cx="${X(pk)}" cy="${Y(w[pk])}" r="9" fill="${C.amber}"/>`+T(X(pk),Y(w[pk])-24,'Peak 110.6%',{size:26,a:'middle',weight:700,color:C.amber}));
+  if(tail>0){
+    g+=G(tail,T(X(66),Y(84),'29 accounts give\nback 10.6 points',{size:26,a:'middle',color:C.red,weight:700,lh:30}));
+  }
+  // right panel
+  const rp=P(t,41.2,41.8);
+  if(rp>0){
+    let q=R(1260,220,580,560,C.panel,{rx:18});
+    q+=T(1300,300,'29',{size:96,weight:700,color:C.red})+T(1420,272,'EBITDA-negative accounts',{size:26})+T(1420,305,'24 of them small',{size:24,color:C.muted});
+    q+=T(1300,400,'Cost-to-serve, € per tonne',{size:26,color:C.muted});
+    const tiers=[['Key',46.1,C.blue],['Mid',97.7,'#5f8fc4'],['Small',315.8,C.red]];
+    tiers.forEach((c,i)=>{
+      const y=430+i*105, e=EO(P(t,42+i*.35,42.9+i*.35)), bw=c[1]*1.35*e;
+      q+=T(1300,y+45,c[0],{size:28});
+      q+=R(1390,y+15,bw,46,c[2],{rx:4});
+      q+=T(1390+bw+12,y+48,'€'+Math.round(c[1]),{size:28,weight:700,op:e});
+    });
+    g+=G(rp,q,`translate(${(1-EO(rp))*40} 0)`);
+  }
+  return G(op,g);
+}
+
+// ---------- scene 5: energy (47 to 58)
+function s5(t){
+  const op=W(t,47,58.3,0.5); if(op<=0) return '';
+  const s=D.energy.series.P3, n=s.weeks.length;
+  const x0=200, x1=1330, yb=760, yt=250;
+  const all=s.intensity.concat(s.baseline).filter(v=>v!=null);
+  const lo=Math.min(...all)*0.95, hi=Math.max(...all)*1.03;
+  const X=i=>x0+i/(n-1)*(x1-x0), Y=v=>yb-(v-lo)/(hi-lo)*(yb-yt);
+  const idx=d=>s.weeks.indexOf(d);
+  const ia=idx(D.energy.anomaly_start), il=idx(D.energy.alert_week_p3);
+  let g='';
+  g+=T(x0,yt-60,'Sweden Central plant: energy per tonne, weekly',{size:30,weight:700});
+  g+=T(x0,yt-25,'MWh per tonne vs its own FY2024 seasonal baseline',{size:22,color:C.muted});
+  g+=L(x0,yb,x1,yb,C.line,2);
+  const yi=idx('2025-01-06');
+  g+=L(X(yi),yt,X(yi),yb,C.line,1,{dash:'4 6'});
+  g+=T(X(0),yb+36,'2024',{size:22,color:C.muted})+T(X(yi),yb+36,'2025',{size:22,color:C.muted});
+  const k=E(P(t,47.8,52.5)), m=Math.floor(k*(n-1));
+  const seg=(arr)=>{const p=[];for(let i=0;i<=m;i++) if(arr[i]!=null) p.push([X(i),Y(arr[i])]);return p;};
+  // drift shading
+  const sh=P(t,52.5,53.2);
+  if(sh>0){
+    const top=[],bot=[];for(let i=ia;i<n;i++){top.push([X(i),Y(s.intensity[i])]);bot.unshift([X(i),Y(s.baseline[i])]);}
+    g+=`<path d="${pathFrom(top.concat(bot))} Z" fill="${C.red}" opacity="${.28*sh}"/>`;
+  }
+  g+=`<path d="${pathFrom(seg(s.baseline))}" fill="none" stroke="${C.grey}" stroke-width="3" stroke-dasharray="8 6"/>`;
+  g+=`<path d="${pathFrom(seg(s.intensity))}" fill="none" stroke="${C.amber}" stroke-width="3.5" stroke-linejoin="round"/>`;
+  g+=G(P(t,49,49.6),R(x1-330,yt-8,24,4,C.amber)+T(x1-296,yt,'Actual',{size:22})+L(x1-190,yt-6,x1-166,yt-6,C.grey,3,{dash:'6 4'})+T(x1-156,yt,'Baseline',{size:22}));
+  // markers
+  const ma=P(t,52.8,53.3), ml=P(t,53.5,54);
+  g+=G(ma,L(X(ia),yt+40,X(ia),yb,C.red,2,{dash:'5 5'})+T(X(ia)-10,yt+30,'Drift starts, Apr 2025',{size:22,a:'end',color:C.red}));
+  g+=G(ml,`<circle cx="${X(il)}" cy="${Y(s.intensity[il])}" r="12" fill="none" stroke="${C.text}" stroke-width="3"/>`+
+     R(X(il)+22,Y(s.intensity[il])-110,250,74,C.text,{rx:10})+T(X(il)+36,Y(s.intensity[il])-80,'Weekly alert',{size:22,color:C.bg,weight:700})+T(X(il)+36,Y(s.intensity[il])-50,'19 May 2025',{size:24,color:C.bg,weight:700}));
+  // right panel
+  const rp=P(t,54,54.6);
+  if(rp>0){
+    let q=R(1420,230,420,540,C.panel,{rx:18});
+    q+=T(1455,290,'Monthly report, April',{size:24,color:C.muted})+T(1455,365,'+4.3%',{size:72,weight:700,color:'#c9d6e3'})+T(1455,400,'looked like normal noise',{size:22,color:C.muted});
+    const e2=P(t,55,55.6);
+    q+=G(e2,L(1455,430,1805,430,C.line,2)+T(1455,480,'Excess energy cost',{size:24,color:C.muted})+T(1455,555,'€0.60m',{size:72,weight:700,color:C.red})+T(1455,590,'a year at current run-rate',{size:22,color:C.muted})+
+      T(1455,650,'6,315 MWh  |  253 t CO₂',{size:26,color:'#c9d6e3'})+T(1455,690,'excess in 2025',{size:22,color:C.muted}));
+    g+=G(rp,q,`translate(${(1-EO(rp))*40} 0)`);
+  }
+  return G(op,g);
+}
+
+// ---------- scene 6: AI agent (58 to 68)
+function s6(t){
+  const op=W(t,58,68.3,0.5); if(op<=0) return '';
+  let g='';
+  const st=[['Facts','verified numbers\nfrom the model'],['Draft','LLM writes the\ncommentary'],['Check','every number traced\nback to the facts'],['Review','controller signs off\nbefore publishing']];
+  const bx=200, bw=320, gap=86, by=175;
+  st.forEach((c,i)=>{
+    const x=bx+i*(bw+gap), e=EO(P(t,58.3+i*.3,59+i*.3));
+    const active=(i==0&&t<60.5)||(i==1&&t>=60.5&&t<64.2)||(i==2&&t>=64.2&&t<65.8)||(i==3&&t>=65.8);
+    const done=(i==0&&t>=60.5)||(i==1&&t>=64.2)||(i==2&&t>=65.8)||(i==3&&t>=66.8);
+    let q=R(x,by,bw,150,active?'#1b3350':C.panel,{rx:16,stroke:active?C.blue:C.line,sw:2});
+    q+=T(x+30,by+55,(i+1)+'  '+c[0],{size:34,weight:700})+T(x+30,by+95,c[1],{size:22,color:C.muted,lh:26});
+    if(done) q+=check(x+bw-36,by+38,18,C.green);
+    g+=G(e,q);
+    if(i<3) g+=G(e,`<path d="M${x+bw+18} ${by+75} l${gap-36} 0 m-12 -10 l12 10 l-12 10" stroke="${C.grey}" stroke-width="3" fill="none"/>`);
+  });
+  // draft panel
+  const dp=EO(P(t,59.5,60.3));
+  const lines=[
+    'Net sales grew 2.3% to €517.5m, but EBITDA fell €17.6m to €48.0m',
+    '(margin 13.0% to 9.3%). Fibre, energy and the weaker SEK explain',
+    '€15.0m together. The controllable part sits in pricing: fixed annual',
+    'contracts moved −3.4% (−€9.0m) while indexed contracts moved +1.1%.',
+    '29 accounts are EBITDA-negative after cost-to-serve.'];
+  const nums=/(−?€?\d[\d.,]*(?:%|m)?)/g;
+  const full=lines.join('\n'); const total=full.length;
+  const shown=Math.floor(total*clamp((t-60.5)/3.6));
+  let q=R(200,370,1520,420,'#0f1a25',{rx:16,stroke:C.line,sw:2})+T(240,420,'Draft variance commentary, FY2025 vs FY2024',{size:24,color:C.muted,weight:700});
+  let used=0; const chk=P(t,64.2,65.6);
+  lines.forEach((ln,i)=>{
+    const vis=ln.slice(0,Math.max(0,Math.min(ln.length,shown-used))); used+=ln.length+1;
+    if(!vis) return;
+    // build tspans with number highlights
+    let parts='';let last=0;let mt;const re=new RegExp(nums.source,'g');let ci=0;
+    while((mt=re.exec(vis))){
+      if(mt.index>last) parts+=`<tspan>${esc(vis.slice(last,mt.index))}</tspan>`;
+      const on=chk>0?clamp(chk*12-ci*0.9):0; ci++;
+      parts+=`<tspan fill="${on>0.5?'#7fe0b3':C.text}" font-weight="${on>0.5?700:400}">${esc(mt[0])}</tspan>`;
+      last=mt.index+mt[0].length;
+    }
+    if(last<vis.length) parts+=`<tspan>${esc(vis.slice(last))}</tspan>`;
+    q+=`<text x="240" y="${480+i*52}" font-family="${F}" font-size="32" fill="${C.text}">${parts}</text>`;
+  });
+  if(t>60.5&&t<64.1&&Math.floor(t*3)%2==0){
+    // caret at end of the current line
+    let acc=0,li=0;for(;li<lines.length;li++){if(shown<=acc+lines[li].length)break;acc+=lines[li].length+1;}
+  }
+  q+=G(P(t,65.6,66.1),R(240,735,560,40,'#12301f',{rx:20})+check(262,755,14,C.green)+T(286,764,'Number check passed: 0 unmatched values',{size:22,color:'#bfeed7',weight:700}));
+  q+=G(P(t,66.6,67.1),R(830,735,420,40,'#1b3350',{rx:20})+T(850,764,'Awaiting controller sign-off',{size:22,color:'#b9d4f3',weight:700}));
+  g+=G(dp,q,`translate(0 ${(1-dp)*30})`);
+  return G(op,g);
+}
+
+// ---------- scene 7: plan + end card (68 to 80)
+function s7(t){
+  let g='';
+  const op=W(t,68,75.6,0.5);
+  if(op>0){
+    const ini=D.initiatives.filter(i=>i.value>0).sort((a,b)=>b.value-a.value);
+    let q=T(200,200,'Improvement initiatives, full-year EBITDA value',{size:32,weight:700})+T(200,238,'€ million, each with a KPI, an owner and a monthly review',{size:22,color:C.muted});
+    const x0=720, sc=110;
+    ini.forEach((it,i)=>{
+      const y=290+i*96, e=EO(P(t,68.5+i*.4,69.6+i*.4)), w=it.value*sc*e;
+      q+=T(x0-24,y+42,it.name,{size:27,a:'end'});
+      q+=R(x0,y+10,w,52,i==0?C.blue:'#4f84c0',{rx:5});
+      q+=T(x0+w+14,y+47,'€'+it.value.toFixed(2)+'m',{size:28,weight:700,op:e});
+      q+=T(x0-24,y+72,'KPI: '+it.kpi.split(';')[0],{size:18,a:'end',color:C.muted,op:e});
+    });
+    q+=G(P(t,68.5,69),T(x0-24,290+5*96+42,'AI agent for month-end commentary',{size:27,a:'end',color:C.muted})+T(x0+14,290+5*96+42,'faster close, value not counted',{size:24,color:C.muted}));
+    const k=E(P(t,70.5,72.5));
+    q+=G(P(t,70.3,70.8),R(1440,320,400,300,C.panel,{rx:18})+T(1480,380,'Total value',{size:26,color:C.muted})+
+      T(1480,470,'€'+(8.41*k).toFixed(1)+'m',{size:88,weight:700,color:C.green})+T(1480,530,'+'+(1.6*k).toFixed(1)+' pp EBITDA margin',{size:30,weight:700})+T(1480,572,'1.6 of the 3.7 points lost',{size:22,color:C.muted}));
+    g+=G(op,q);
+  }
+  const ec=P(t,75.4,76.4);
+  if(ec>0){
+    let q=T(960,330,'Margin Recovery Case',{size:34,a:'middle',color:C.muted,weight:700,ls:2});
+    q+=T(960,430,'Rajan Kumar V K',{size:84,a:'middle',weight:700});
+    q+=T(960,495,'D.Sc. Industrial Engineering and Management',{size:34,a:'middle',color:'#c9d6e3'});
+    q+=R(860,540,200,4,C.blue,{rx:2});
+    q+=T(960,610,'Interactive case, SQL, Python and Power BI',{size:30,a:'middle',color:C.muted});
+    q+=T(960,670,'rajan56.github.io/margin-recovery-case',{size:44,a:'middle',weight:700,color:'#7fb3f0'});
+    q+=T(960,800,'Northfold Packaging is a fictional company. All numbers are synthetic.',{size:24,a:'middle',color:C.muted});
+    g+=G(ec,q,`translate(0 ${(1-EO(ec))*20})`);
+  }
+  return g;
+}
+
+function render(t){
+  let fade=P(t,0,0.4)*(1-P(t,DUR-0.5,DUR));
+  const body=R(0,0,1920,1080,C.bg)+
+    `<radialGradient id="rg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#16263a"/><stop offset="1" stop-color="${C.bg}"/></radialGradient>`+
+    R(0,0,1920,1080,'url(#rg)')+
+    G(fade,s1(t)+s2(t)+s3(t)+s4(t)+s5(t)+s6(t)+s7(t)+chrome(t));
+  document.getElementById('s').innerHTML=body;
+}
+window.render=render;
+const q=new URLSearchParams(location.search);
+if(q.has('t')) render(parseFloat(q.get('t')));
+else if(!q.has('static')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%DUR);requestAnimationFrame(loop);})();}
+</script></body></html>
