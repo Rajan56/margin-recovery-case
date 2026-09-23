@@ -1,0 +1,6 @@
+plant_id,plant_name,country,currency,base_mwh_per_t,board_usage_t_per_t
+P1,Finland South,FI,EUR,0.44,1.1
+P2,Finland West,FI,EUR,0.46,1.105
+P3,Sweden Central,SE,SEK,0.45,1.1
+P4,Sweden South,SE,SEK,0.47,1.108
+P5,Baltics,LV,EUR,0.48,1.135

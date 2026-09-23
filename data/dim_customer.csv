@@ -1,0 +1,81 @@
+customer_id,customer_name,tier,contract_type,plant_id,segment_id,annual_volume_2024_t,price_premium,t_per_delivery,t_per_order,print_complexity
+C001,Customer 001,Key,Fixed annual,P1,S2,17976.0,-0.048,17.0,44.6,1.0
+C002,Customer 002,Key,Fixed annual,P2,S4,21434.0,-0.0183,14.8,47.4,1.3
+C003,Customer 003,Key,Indexed,P2,S4,27214.0,-0.0361,17.6,55.6,1.0
+C004,Customer 004,Key,Fixed annual,P1,S1,23200.0,-0.0302,21.8,44.0,1.3
+C005,Customer 005,Key,Fixed annual,P3,S1,29705.0,-0.0488,20.7,50.5,1.0
+C006,Customer 006,Key,Indexed,P1,S2,21621.0,-0.0081,16.0,34.6,1.3
+C007,Customer 007,Key,Fixed annual,P1,S2,18688.0,-0.0378,20.4,43.8,1.7
+C008,Customer 008,Key,Indexed,P4,S3,16547.0,-0.05,20.3,45.2,1.3
+C009,Customer 009,Key,Indexed,P3,S3,32289.0,-0.0469,16.9,46.2,1.0
+C010,Customer 010,Key,Fixed annual,P1,S1,23972.0,-0.0565,24.5,45.2,1.7
+C011,Customer 011,Key,Fixed annual,P3,S1,11452.0,-0.0599,18.8,43.4,1.7
+C012,Customer 012,Key,Fixed annual,P2,S4,18317.0,-0.0408,24.1,44.3,1.0
+C013,Customer 013,Key,Fixed annual,P2,S2,8239.0,-0.0225,19.0,50.4,1.3
+C014,Customer 014,Key,Fixed annual,P1,S2,14701.0,-0.0303,19.5,41.4,1.3
+C015,Customer 015,Key,Fixed annual,P2,S2,13197.0,-0.0425,15.5,43.8,1.0
+C016,Customer 016,Mid,Indexed,P3,S3,8117.0,0.0243,15.4,16.9,1.0
+C017,Customer 017,Mid,Indexed,P3,S1,4965.0,0.0042,13.5,16.6,1.0
+C018,Customer 018,Mid,Fixed annual,P2,S4,2897.0,-0.0032,10.7,17.5,1.7
+C019,Customer 019,Mid,Indexed,P2,S2,6586.0,-0.0159,13.4,14.0,1.0
+C020,Customer 020,Mid,Indexed,P3,S5,4125.0,0.0291,12.5,14.1,1.3
+C021,Customer 021,Mid,Fixed annual,P2,S3,2215.0,0.0261,13.7,11.5,1.0
+C022,Customer 022,Mid,Fixed annual,P1,S2,4529.0,-0.0186,13.3,18.0,1.0
+C023,Customer 023,Mid,Indexed,P4,S4,3260.0,0.0058,14.9,11.0,1.0
+C024,Customer 024,Mid,Indexed,P3,S3,2550.0,0.0317,16.2,12.6,1.3
+C025,Customer 025,Mid,Fixed annual,P2,S5,5474.0,-0.013,17.4,10.4,1.0
+C026,Customer 026,Mid,Fixed annual,P2,S3,4658.0,0.0423,14.2,17.1,1.0
+C027,Customer 027,Mid,Fixed annual,P4,S3,15478.0,0.0108,15.4,12.5,1.3
+C028,Customer 028,Mid,Indexed,P3,S3,7599.0,-0.0035,15.9,13.1,1.0
+C029,Customer 029,Mid,Indexed,P1,S5,3336.0,0.0231,13.2,21.1,1.0
+C030,Customer 030,Mid,Indexed,P3,S2,4859.0,0.0207,15.6,18.9,1.3
+C031,Customer 031,Mid,Indexed,P1,S4,4127.0,0.0274,13.6,14.1,1.3
+C032,Customer 032,Mid,Indexed,P2,S5,4994.0,-0.0253,13.6,17.1,1.0
+C033,Customer 033,Mid,Indexed,P1,S4,5466.0,0.0006,14.7,14.3,1.0
+C034,Customer 034,Mid,Indexed,P3,S4,4531.0,0.0072,14.7,15.7,1.3
+C035,Customer 035,Mid,Indexed,P5,S4,4013.0,0.0277,13.7,12.9,1.0
+C036,Customer 036,Mid,Fixed annual,P5,S2,5135.0,0.0094,14.0,16.0,1.0
+C037,Customer 037,Mid,Fixed annual,P4,S5,3031.0,-0.0138,16.2,16.4,1.0
+C038,Customer 038,Mid,Indexed,P5,S1,4301.0,0.0098,11.7,15.7,1.0
+C039,Customer 039,Mid,Indexed,P5,S3,6774.0,-0.0004,11.4,19.2,1.7
+C040,Customer 040,Mid,Indexed,P1,S5,5003.0,0.0074,12.8,15.3,1.3
+C041,Customer 041,Mid,Indexed,P5,S1,4162.0,0.0154,16.7,12.5,1.0
+C042,Customer 042,Mid,Fixed annual,P2,S1,4711.0,-0.0119,13.1,15.3,1.0
+C043,Customer 043,Mid,Indexed,P1,S2,5019.0,0.0185,15.2,16.5,1.3
+C044,Customer 044,Mid,Indexed,P2,S3,6799.0,0.0004,15.1,14.8,1.0
+C045,Customer 045,Mid,Fixed annual,P4,S1,5893.0,-0.0024,14.2,12.8,1.3
+C046,Customer 046,Small,List price,P4,S1,1636.0,0.0501,3.7,6.5,1.7
+C047,Customer 047,Small,List price,P2,S3,2005.0,0.0837,4.6,6.8,1.7
+C048,Customer 048,Small,List price,P3,S1,852.0,0.0671,3.1,4.7,1.3
+C049,Customer 049,Small,List price,P4,S1,1985.0,0.0133,4.0,4.9,1.7
+C050,Customer 050,Small,List price,P1,S1,1396.0,0.1113,4.7,6.1,1.0
+C051,Customer 051,Small,List price,P3,S2,1050.0,0.0765,3.9,5.7,1.0
+C052,Customer 052,Small,List price,P1,S1,1052.0,0.0772,3.8,5.7,1.0
+C053,Customer 053,Small,List price,P3,S2,1505.0,0.085,3.7,4.9,1.7
+C054,Customer 054,Small,List price,P2,S1,944.0,0.0737,4.0,4.3,1.7
+C055,Customer 055,Small,List price,P4,S4,1077.0,0.07,4.8,4.2,1.3
+C056,Customer 056,Small,List price,P2,S3,787.0,0.0767,4.6,5.0,1.3
+C057,Customer 057,Small,List price,P2,S3,1153.0,0.0654,4.1,5.3,1.3
+C058,Customer 058,Small,List price,P5,S1,829.0,0.0484,5.0,5.7,1.0
+C059,Customer 059,Small,List price,P1,S5,2383.0,0.063,3.7,7.6,1.7
+C060,Customer 060,Small,List price,P2,S2,1563.0,0.058,4.1,5.3,1.0
+C061,Customer 061,Small,List price,P4,S5,584.0,0.104,5.1,4.3,1.3
+C062,Customer 062,Small,List price,P2,S2,1112.0,0.0809,4.4,6.2,1.3
+C063,Customer 063,Small,List price,P2,S3,1198.0,0.0884,4.2,5.0,1.0
+C064,Customer 064,Small,List price,P2,S3,547.0,0.0496,3.9,5.4,1.0
+C065,Customer 065,Small,List price,P3,S3,799.0,0.0391,4.1,4.9,1.0
+C066,Customer 066,Small,List price,P2,S3,744.0,0.0995,4.5,5.6,1.0
+C067,Customer 067,Small,List price,P4,S5,1442.0,0.0503,3.5,5.4,1.7
+C068,Customer 068,Small,List price,P3,S1,1368.0,0.0725,4.7,6.0,1.0
+C069,Customer 069,Small,List price,P4,S3,1199.0,0.0868,4.4,5.4,1.3
+C070,Customer 070,Small,List price,P2,S3,1159.0,0.0919,4.7,5.3,1.7
+C071,Customer 071,Small,List price,P4,S2,1733.0,0.0052,3.9,5.0,1.7
+C072,Customer 072,Small,List price,P1,S2,1786.0,0.0755,4.0,6.2,1.0
+C073,Customer 073,Small,List price,P1,S4,1661.0,0.0473,4.2,6.2,1.3
+C074,Customer 074,Small,List price,P3,S3,1025.0,0.063,4.2,5.6,1.7
+C075,Customer 075,Small,List price,P4,S3,1912.0,0.0916,4.2,6.6,1.7
+C076,Customer 076,Small,List price,P2,S1,1612.0,0.0936,4.5,5.3,1.3
+C077,Customer 077,Small,List price,P1,S3,2361.0,0.1006,4.3,7.7,1.7
+C078,Customer 078,Small,List price,P4,S1,1997.0,0.0981,4.6,6.9,1.7
+C079,Customer 079,Small,List price,P4,S4,709.0,0.0888,3.9,4.7,1.7
+C080,Customer 080,Small,List price,P2,S1,1370.0,0.05,3.6,5.7,1.3

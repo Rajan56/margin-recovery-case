@@ -1,0 +1,6 @@
+segment_id,segment_name,list_price_eur_t,other_var_eur_t
+S1,E-commerce,1010,48
+S2,Fresh produce,985,46
+S3,Industrial,905,40
+S4,Retail-ready,1240,78
+S5,Heavy-duty,1150,52
